@@ -4,6 +4,7 @@
  */
 package com.example.controller;
 
+import static com.example.controller.ResponseHandler.resBuilder;
 import com.example.dto.MailRequest;
 import com.example.model.Otp;
 import com.example.service.OtpService;
@@ -29,34 +30,39 @@ public class OtpController {
     public ResponseEntity<?> generateCode(@RequestBody MailRequest emailRequest){
         String email = emailRequest.getEmail().trim();
         String otp = emailRequest.getCode().trim();
-      
+        
+        if (email.isEmpty()) {
+            return resBuilder("Email không được để trống", HttpStatus.BAD_REQUEST, null);
+        }
+
+        
         try {
             otpService.saveOtp(email, otp, 10);
         } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra khi lưu mã OTP");
+               return resBuilder("Có lỗi xảy ra khi lưu mã OTP", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
         return ResponseEntity.ok("Mã OTP đã được lưu");
     }
    @PostMapping("/verify")
-public ResponseEntity<String> verifyCode(@RequestBody MailRequest verificationReq) {
+public ResponseEntity<?> verifyCode(@RequestBody MailRequest verificationReq) {
     String email = verificationReq.getEmail().trim();
     String otp = verificationReq.getCode().trim();
 
     if (email.isEmpty() || otp.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email hoặc mã OTP không hợp lệ.");
+         return resBuilder("Email hoặc mã OTP không hợp lệ.", HttpStatus.BAD_REQUEST, null);
     }
 
     try {
         boolean isOtpValid = otpService.verifyOtp(email, otp);
         if (isOtpValid) {
             otpService.deleteOtp(email); // Xóa OTP sau khi xác thực thành công
-            return ResponseEntity.ok("Xác thực OTP thành công");
+            return resBuilder("Xác thực OTP thành công", HttpStatus.OK, null);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã OTP không hợp lệ hoặc đã hết hạn");
+             return resBuilder("Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST, null);
         }
     } catch (Exception e) {
         System.out.println(e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra khi xác thực mã OTP.");
+         return resBuilder("Có lỗi xảy ra khi xác thực mã OTP.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 }
     
