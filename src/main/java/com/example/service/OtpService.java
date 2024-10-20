@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -57,5 +58,18 @@ public class OtpService {
 
     public void deleteOtp(String email) {
         otpRepository.deleteByEmail(email);
+    }
+    
+    @Scheduled(fixedRate = 1800000) // Thực hiện mỗi giờ (3600000 ms)
+    public void deleteExpiredOtps() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Otp> expiredOtps = otpRepository.findAllByExpiryTimeBefore(now);
+        if (!expiredOtps.isEmpty()) {
+            otpRepository.deleteAll(expiredOtps);
+            System.out.println("Đã xóa tất cả OTP hết hạn");
+        }
+        else {
+            System.out.println("Không có OTP hết hạn để xóa");
+        }
     }
 }
