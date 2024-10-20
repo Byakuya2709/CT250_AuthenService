@@ -20,9 +20,11 @@ public class Otp {
      private String id;
     private String email;
     private String otp;
+    private LocalDateTime createdDate; 
     private LocalDateTime expiryTime; 
 
     public Otp() {
+        this.createdDate = LocalDateTime.now();
     }
     
     

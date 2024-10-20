@@ -5,8 +5,12 @@
 package com.example.repository;
 
 import com.example.model.Otp;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -16,4 +20,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface OtpRepository extends MongoRepository<Otp, String> {
     Optional<Otp> findByEmail(String email);
     void deleteByEmail(String email);
+    
+    @Transactional
+    void deleteAllByEmail(String email);
+    
+    List<Otp> findAllByEmail(String email);
+    
+    @Query(value = "{ 'email': ?0 }", sort = "{ 'createdDate': -1 }")
+    List<Otp> findTopByEmailOrderByCreatedDateDesc(String email);
 }
