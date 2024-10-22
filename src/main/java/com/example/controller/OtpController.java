@@ -1,14 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.controller;
 
 import static com.example.controller.ResponseHandler.resBuilder;
 import com.example.dto.MailRequest;
+import com.example.dto.VerificationRequest;
 import com.example.model.Otp;
 import com.example.service.OtpService;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Other imports...
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/otp")
@@ -35,9 +31,10 @@ public class OtpController {
     public ResponseEntity<?> generateCode(@RequestBody MailRequest emailRequest) {
         String email = emailRequest.getEmail().trim();
         String otp = emailRequest.getCode().trim();
+        String type = emailRequest.getTypeOtp().trim(); // Thêm trường loại OTP
 
-        if (email.isEmpty()) {
-            return resBuilder("Email không được để trống", HttpStatus.BAD_REQUEST, null);
+        if (email.isEmpty() || type.isEmpty()) {
+            return resBuilder("Email hoặc loại OTP không được để trống", HttpStatus.BAD_REQUEST, null);
         }
 
         List<Otp> existingOtps = otpService.findAllByEmail(email);
@@ -46,7 +43,7 @@ public class OtpController {
         }
 
         try {
-            otpService.saveOtp(email, otp, 10);
+            otpService.saveOtp(email, otp, type, 10); // Ghi lại loại OTP vào dịch vụ
         } catch (Exception e) {
             logger.error("Error saving OTP for email {}: {}", email, e.getMessage());
             return resBuilder("Có lỗi xảy ra khi lưu mã OTP", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -55,16 +52,18 @@ public class OtpController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyCode(@RequestBody MailRequest verificationReq) {
+    public ResponseEntity<?> verifyCode(@RequestBody VerificationRequest verificationReq) {
         String email = verificationReq.getEmail().trim();
         String otp = verificationReq.getCode().trim();
+        String type = verificationReq.getType().trim(); // Thêm trường loại OTP
+        System.out.println(type);
 
-        if (email.isEmpty() || otp.isEmpty()) {
-            return resBuilder("Email hoặc mã OTP không hợp lệ.", HttpStatus.BAD_REQUEST, null);
+        if (email.isEmpty() || otp.isEmpty() || type.isEmpty()) {
+            return resBuilder("Email, mã OTP hoặc loại OTP không hợp lệ.", HttpStatus.BAD_REQUEST, null);
         }
 
         try {
-            boolean isOtpValid = otpService.verifyOtp(email, otp);
+            boolean isOtpValid = otpService.verifyOtp(email, otp, type); // Gọi phương thức xác minh với loại
             if (isOtpValid) {
                 otpService.deleteOtp(email); // Xóa OTP sau khi xác thực thành công
                 return resBuilder("Xác thực OTP thành công", HttpStatus.OK, null);
@@ -76,5 +75,4 @@ public class OtpController {
             return resBuilder("Có lỗi xảy ra khi xác thực mã OTP.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-
 }

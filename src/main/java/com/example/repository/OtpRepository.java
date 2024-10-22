@@ -27,8 +27,9 @@ public interface OtpRepository extends MongoRepository<Otp, String> {
     
     List<Otp> findAllByEmail(String email);
     
-    @Query(value = "{ 'email': ?0 }", sort = "{ 'createdDate': -1 }")
-    List<Otp> findTopByEmailOrderByCreatedDateDesc(String email);
+    @Query(value = "{ 'email': ?1, 'otpType': ?0 }", sort = "{ 'createdDate': -1 }")
+    List<Otp> findByOtpTypeAndEmailOrderByCreatedDateDesc(String otpType, String email);
     
      List<Otp> findAllByExpiryTimeBefore(LocalDateTime expiryTime);
+     List<Otp> findByOtpType(String otpType);
 }

@@ -17,9 +17,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Otp {
     
     @Id
-     private String id;
+    private String id;
     private String email;
     private String otp;
+    private String otpType;
     private LocalDateTime createdDate; 
     private LocalDateTime expiryTime; 
 
@@ -65,5 +66,21 @@ public class Otp {
     public void setExpiryTime(LocalDateTime expiryTime) {
         this.expiryTime = expiryTime;
     }
-    
+
+    public String getOtpType() {
+        return otpType;
+    }
+
+    public void setOtpType(String otpType) {
+        this.otpType = otpType;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+        
 }

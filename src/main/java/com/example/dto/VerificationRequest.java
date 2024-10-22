@@ -8,7 +8,7 @@ package com.example.dto;
  *
  * @author ADMIN
  */
-public class MailRequest {
+public class VerificationRequest {
     String email;
     String code;
     String type;
@@ -17,16 +17,16 @@ public class MailRequest {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTypeOtp() {
+    public String getType() {
         return type;
     }
 
-    public void setTypeOtp(String typeOtp) {
-        this.type = typeOtp;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getCode() {
@@ -36,5 +36,6 @@ public class MailRequest {
     public void setCode(String code) {
         this.code = code;
     }
+    
     
 }
