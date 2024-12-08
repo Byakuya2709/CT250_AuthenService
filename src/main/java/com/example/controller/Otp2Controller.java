@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/otp2")
-@CrossOrigin(origins = "http://localhost:3001")
+@CrossOrigin(origins = {"http://localhost:3001", "https://byakuya2709.github.io"})
 public class Otp2Controller {
 
     private static final Logger logger = LoggerFactory.getLogger(Otp2Controller.class);
@@ -55,7 +55,7 @@ public class Otp2Controller {
 
         try {
             otpService.saveOtp(email, otp, type, OTP_VALIDITY_MINUTES);
-//            emailService.sendVerificationEmail(email, otp);
+            emailService.sendVerificationEmail(email, otp);
         } catch (Exception e) {
             logger.error("Error saving OTP for email {}: {}", email, e.getMessage());
             return resBuilder("Có lỗi xảy ra khi lưu mã OTP", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

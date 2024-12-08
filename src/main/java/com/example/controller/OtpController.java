@@ -17,9 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("/api/otp")
+@CrossOrigin(origins = {"http://localhost:3001", "https://byakuya2709.github.io"})
 public class OtpController {
 
     private static final Logger logger = LoggerFactory.getLogger(OtpController.class);

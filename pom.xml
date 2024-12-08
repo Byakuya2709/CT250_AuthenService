@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ctu.otp</groupId>
-    <artifactId>otp</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>OTP-Service</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>OTPService</name>
