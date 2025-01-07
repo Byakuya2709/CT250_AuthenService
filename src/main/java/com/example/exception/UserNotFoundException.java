@@ -8,8 +8,8 @@ package com.example.exception;
  *
  * @author admin
  */
-public class OtpGenerationException extends RuntimeException {
-    public OtpGenerationException(String message) {
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(String message) {
         super(message);
     }
 }

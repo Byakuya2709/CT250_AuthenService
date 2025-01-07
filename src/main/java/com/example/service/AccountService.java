@@ -5,18 +5,21 @@
 package com.example.service;
 
 import com.example.dto.OtpGenerate;
+import com.example.exception.EmailAlreadyExistsException;
+import com.example.exception.OtpGenerationException;
+import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
 import com.example.model.Otp;
 import com.example.repository.AccountRepository;
 import com.example.request.VerificationRequest;
+import com.example.utils.JwtUtil;
 import java.util.List;
 import java.util.Optional;
+import javax.mail.AuthenticationFailedException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import service.authen.exception.EmailAlreadyExistsException;
-import service.authen.exception.OtpGenerationException;
 
 /**
  *
@@ -24,17 +27,12 @@ import service.authen.exception.OtpGenerationException;
  */
 @Service
 public class AccountService {
+// Constants
+    private static final int OTP_VALIDITY_MINUTES = 10;
+    private static final String ERROR_EMAIL_EMPTY = "Email không được để trống";
+    private static final String ERROR_OTP_INVALID = "Mã OTP không hợp lệ hoặc đã hết hạn";
+    private static final String ERROR_EMAIL_EXISTS = "Email này đã tồn tại!";
 
-    public String encodePassword(String password) {
-        // Tạo mã băm (hash) cho mật khẩu với số lần băm là 12
-        return BCrypt.hashpw(password, BCrypt.gensalt(12));
-    }
-
-    public boolean verifyPassword(String password, String storedHash) {
-        // So sánh mật khẩu người dùng nhập vào với hash lưu trữ
-        return BCrypt.checkpw(password, storedHash);
-    }
-    private static final int OTP_VALIDITY_MINUTES = 10; // Define a constant for OTP validity
     @Autowired
     private AccountRepository accountRepository;
 
@@ -44,53 +42,53 @@ public class AccountService {
     @Autowired
     private EmailService emailService;
 
-    // Create or Update an account
+    public String encodePassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt(12));
+    }
+
+    public boolean verifyPassword(String password, String storedHash) {
+        return BCrypt.checkpw(password, storedHash);
+    }
+
     @Transactional
     public Account saveAccount(Account account) {
         return accountRepository.save(account);
     }
 
-    public boolean existedByEmail(String email) {
+    public boolean existsByEmail(String email) {
         return accountRepository.existsByEmail(email);
     }
 
-    // Find account by email
     public Optional<Account> findAccountByEmail(String email) {
         return accountRepository.findByEmail(email);
     }
 
-    // Find account by ID
     public Optional<Account> findAccountById(String id) {
         return accountRepository.findById(id);
     }
 
-    // Delete account by ID
     public void deleteAccount(String id) {
         accountRepository.deleteById(id);
     }
 
     public String generateCode(String email, String type) {
-        // Validate input
         if (email.isEmpty() || type.isEmpty()) {
-            throw new IllegalArgumentException("Email hoặc loại OTP không được để trống");
+            throw new IllegalArgumentException(ERROR_EMAIL_EMPTY);
         }
 
-        // Check if the email already exists
-        if (existedByEmail(email)) {
-            throw new EmailAlreadyExistsException("Email này đã tồn tại!");
+        if (existsByEmail(email)) {
+            throw new EmailAlreadyExistsException(ERROR_EMAIL_EXISTS);
         }
 
-        // Clear existing OTPs for this email if any
         List<Otp> existingOtps = otpService.findAllByEmail(email);
         if (!existingOtps.isEmpty()) {
             otpService.deleteAllByEmail(email);
         }
 
-        // Generate OTP
         String otp = OtpGenerate.generateOtp();
         try {
             otpService.saveOtp(email, otp, type, OTP_VALIDITY_MINUTES);
-            emailService.sendVerificationEmail(email, otp);
+//            emailService.sendVerificationEmail(email, otp);
         } catch (Exception e) {
             throw new OtpGenerationException("Có lỗi xảy ra khi lưu mã OTP hoặc gửi email.");
         }
@@ -103,30 +101,35 @@ public class AccountService {
         String otp = verificationReq.getCode().trim();
         String type = verificationReq.getType().trim();
 
-        // Input validation
         if (email.isEmpty() || otp.isEmpty() || type.isEmpty()) {
-            throw new IllegalArgumentException("Email, mã OTP hoặc loại OTP không hợp lệ.");
+            throw new IllegalArgumentException(ERROR_EMAIL_EMPTY);
         }
 
         try {
             boolean isOtpValid = otpService.verifyOtp(email, otp, type);
             if (isOtpValid) {
-                otpService.deleteOtp(email); // Delete OTP after successful verification
+                otpService.deleteOtp(email);
+             
                 return "Xác thực OTP thành công";
             } else {
-                throw new OtpGenerationException("Mã OTP không hợp lệ hoặc đã hết hạn");
+  
+                throw new OtpGenerationException(ERROR_OTP_INVALID);
             }
         } catch (Exception e) {
             throw new RuntimeException("Có lỗi không xác định xảy ra khi xác thực mã OTP.");
         }
-
     }
 
-    public boolean authenticate(String email, String password) {
-        // Lấy tài khoản từ cơ sở dữ liệu
-        Account account = accountRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+    public Account authenticate(String email, String password) throws AuthenticationFailedException {
+        Account account = accountRepository.findByEmail(email).orElseThrow(() -> {
+            return new UserNotFoundException("Tài khoản không tồn tại");
+        });
 
-        // Kiểm tra mật khẩu người dùng nhập vào
-        return verifyPassword(password, account.getPassword());
+        if (verifyPassword(password, account.getPassword())) {
+            return account;
+        } else {
+            throw new AuthenticationFailedException("Xác thực thất bại");
+        }
     }
+
 }
