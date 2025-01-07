@@ -2,10 +2,9 @@ package com.example.controller;
 
 import static com.example.controller.ResponseHandler.resBuilder;
 import com.example.dto.EmailRequest;
-import com.example.dto.MailRequest;
 import com.example.dto.OtpGenerate;
-import com.example.dto.VerificationRequest;
 import com.example.model.Otp;
+import com.example.request.VerificationRequest;
 import com.example.service.EmailService;
 import com.example.service.OtpService;
 import java.util.List;
@@ -25,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author admin
  */
 @RestController
-@RequestMapping("/api/otp2")
+@RequestMapping("/otp")
 @CrossOrigin(origins = {"http://localhost:3001", "https://byakuya2709.github.io"})
 public class Otp2Controller {
 
