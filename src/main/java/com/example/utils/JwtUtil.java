@@ -4,10 +4,12 @@ import com.example.model.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -24,7 +26,7 @@ public class JwtUtil {
     // Tạo token từ thông tin account
     public String generateToken(Account account) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", account.getType().toString());
+        claims.put("role",account.getType().toString());
         claims.put("userId", account.getId());
         return createToken(claims, account.getEmail());
     }
