@@ -25,32 +25,53 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/media")
 public class ImageUploadController {
 
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
     @Autowired
     private CloudinaryService cloudinaryService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, Object>> uploadImage(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "userId", required = false, defaultValue = "avatar") String fileName
+    public ResponseEntity<?> uploadImage(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "accountId", required = true) String userId
     ) {
         try {
+            if (file==null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Image uploaded successfully");
+                response.put("imageUrl", "https://res.cloudinary.com/dtza0pk4w/image/upload/v1734758873/default_avatar.jpg");
+                return ResponseHandler.resBuilder("Sử dụng avatar mặc định!", HttpStatus.OK, response);
+            }
+
+            // Kiểm tra định dạng file
+            if (!isValidImage(file)) {
+                return ResponseHandler.resBuilder("Invalid image file format", HttpStatus.BAD_REQUEST, null);
+            }
+
+            // Kiểm tra kích thước file
+            if (file.getSize() > MAX_FILE_SIZE) {
+                return ResponseHandler.resBuilder("File size exceeds the limit", HttpStatus.BAD_REQUEST, null);
+            }
+
             // Gọi service để upload file
-            String imageUrl = cloudinaryService.uploadFile(file, "user/"+fileName, fileName);
+            String imageUrl = cloudinaryService.uploadFile(file, "user/" + userId, "avatar");
 
             // Trả về kết quả
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Image uploaded successfully");
             response.put("imageUrl", imageUrl);
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResponseHandler.resBuilder("Image uploaded successfully", HttpStatus.OK, response);
 
         } catch (IOException e) {
-            // Xử lý lỗi upload
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Error uploading image");
-            errorResponse.put("error", e.getMessage());
-
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
+// Hàm kiểm tra định dạng file (ví dụ: chỉ chấp nhận các file ảnh JPEG, PNG)
+    private boolean isValidImage(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && (contentType.equals("image/jpeg") || contentType.equals("image/png"));
+    }
+
 }

@@ -76,11 +76,11 @@ public class AuthenController {
                 return ResponseHandler.resBuilder(otpVerificationResult, HttpStatus.BAD_REQUEST, null); // OTP verification failed
             }
 
-            // If OTP is valid, proceed with account creation
+//             If OTP is valid, proceed with account creation
             String encodedPassword = accountService.encodePassword(req.getPassword());
             Account account = new Account(req.getEmail().trim(), encodedPassword, Account.Type.valueOf(req.getRole()));
             Account createdAccount = accountService.saveAccount(account);
-            return ResponseHandler.resBuilder("Tạo tài khoản thành công", HttpStatus.CREATED, createdAccount); // Account created successfully
+            return ResponseHandler.resBuilder("Tạo tài khoản thành công", HttpStatus.CREATED, createdAccount);
 
         } catch (RuntimeException ex) {
             return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.BAD_REQUEST, null);

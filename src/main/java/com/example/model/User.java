@@ -78,4 +78,36 @@ public class User implements Serializable {
         this.account = account;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getUserMail() {
+        return userMail;
+    }
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public Gender getUserGender() {
+        return userGender;
+    }
+
+    public String getUserAddress() {
+        return userAddress;
+    }
+
+    public Date getUserBirth() {
+        return userBirth;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
 }
