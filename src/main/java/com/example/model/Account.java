@@ -75,7 +75,7 @@ public class Account implements Serializable {
     public enum Type {
         USER,
         COMPANY,
-        IDOL,
+        ARTIST,
         ADMIN
     }
 }
