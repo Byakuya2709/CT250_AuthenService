@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.ArtistDTO;
 import com.example.model.Artist;
 import com.example.service.ArtistService;
 import com.example.service.CompanyService;
@@ -25,14 +26,21 @@ public class ArtistController {
         try {
             // Validate accountId
             if (accountId == null || accountId.isEmpty()) {
-                return ResponseHandler.resBuilder("Account ID is required.", HttpStatus.BAD_REQUEST, null);
+                return ResponseHandler.resBuilder("Yêu cầu id của tài khoản.", HttpStatus.BAD_REQUEST, null);
             }
 
-            // Lưu nghệ sĩ mới
-            Artist newArtist = companyService.addArtistToCompany(artist, accountId,companyId);
-            return ResponseHandler.resBuilder("Nghệ sĩ đã được tạo thành công.", HttpStatus.CREATED, newArtist);
+            // Validate companyId
+            if (companyId == null || companyId.isEmpty()) {
+                return ResponseHandler.resBuilder("Yêu cầu id của công ty.", HttpStatus.BAD_REQUEST, null);
+            }
+
+            // Save the new artist
+            Artist newArtist = companyService.addArtistToCompany(artist, accountId, companyId);
+            return ResponseHandler.resBuilder("Tạo thông tin nghệ sĩ thành công.", HttpStatus.CREATED, ArtistDTO.ArtistMapper.toDTO(artist));
+        } catch (IllegalArgumentException e) {
+            return ResponseHandler.resBuilder("Đầu vào không hợp lệ: " + e.getMessage(), HttpStatus.BAD_REQUEST, null);
         } catch (Exception e) {
-            return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo nghệ sĩ.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ResponseHandler.resBuilder("An error occurred while creating the artist.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -66,11 +74,11 @@ public class ArtistController {
     }
 
     // Endpoint để lấy thông tin nghệ sĩ theo ID
-    @GetMapping("/{artistId}")
-    public ResponseEntity<?> getArtistById(@PathVariable String artistId) {
+    @GetMapping("/{accountId}")
+    public ResponseEntity<?> getArtistById(@PathVariable String accountId) {
         try {
             // Lấy thông tin nghệ sĩ theo ID
-            Artist artist = artistService.getArtistById(artistId);
+            Artist artist = artistService.findArtistById(accountId);
             return ResponseHandler.resBuilder("Lấy thông tin nghệ sĩ thành công.", HttpStatus.OK, artist);
         } catch (Exception e) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin nghệ sĩ.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

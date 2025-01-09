@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.model.Artist;
 import com.example.model.Company;
+import com.example.model.User;
 import com.example.repository.ArtistRepository;
 import com.example.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,10 @@ public class ArtistService {
     // Lấy tất cả nghệ sĩ của một công ty
     public List<Artist> getAllArtistsByCompanyId(String companyId) {
         return artistRepository.findAllByCompanyId(companyId);
+    }
+    public Artist findArtistById(String accountId) {
+        Optional<Artist> artist = artistRepository.findByAccount_Id(accountId);
+        return artist.orElseThrow(() -> new RuntimeException("No user found for account ID: " + accountId));
+
     }
 }

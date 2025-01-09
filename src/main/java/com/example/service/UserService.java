@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -36,5 +37,10 @@ public class UserService {
         user.setAccount(account);  // Liên kết tài khoản với người dùng
         return userRepository.save(user);  // Lưu người dùng vào cơ sở dữ liệu
     }
-    
+
+    public User findUserById(String accountId) {
+        Optional<User> user = userRepository.findByAccount_Id(accountId);
+        return user.orElseThrow(() -> new RuntimeException("No user found for account ID: " + accountId));
+
+    }
 }

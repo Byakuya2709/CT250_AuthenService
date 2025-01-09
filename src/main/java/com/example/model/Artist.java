@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 import org.springframework.data.annotation.Id;
@@ -24,6 +25,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
         private Company company; // Mỗi nghệ sĩ chỉ thuộc về một công ty duy nhất
 
         @DBRef
+        @JsonIgnore
         private Account account;
 
     // Getters và Setters

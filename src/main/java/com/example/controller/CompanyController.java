@@ -1,8 +1,10 @@
 package com.example.controller;
 
+import com.example.dto.CompanyDTO;
 import com.example.model.Artist;
 import com.example.model.Company;
 import com.example.service.CompanyService;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +35,13 @@ public class CompanyController {
     public ResponseEntity<?> getAllCompany() {
         try {
             List<Company> listCompany = companyService.getAllCompanies();
-            return ResponseHandler.resBuilder("Lấy thông tin tất cả công ty thành công.", HttpStatus.CREATED, listCompany);
+            List<CompanyDTO> res = new ArrayList<>();
+
+            // Loop through each company and convert to CompanyDTO
+            for (Company company : listCompany) {
+                res.add(CompanyDTO.CompanyMapper.toDTO(company));  // Add each DTO to the list
+            }
+            return ResponseHandler.resBuilder("Lấy thông tin tất cả công ty thành công.", HttpStatus.CREATED, res);
         } catch (Exception ex) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
@@ -60,7 +68,6 @@ public class CompanyController {
 //            return ResponseHandler.resBuilder("Có lỗi xảy ra khi thêm nghệ sĩ vào công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 //        }
 //    }
-
     // Endpoint để lấy tất cả nghệ sĩ của công ty
     @GetMapping("/{companyId}/artists")
     public ResponseEntity<?> getAllArtistsByCompany(@PathVariable String companyId) {

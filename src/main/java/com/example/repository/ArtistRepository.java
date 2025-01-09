@@ -5,7 +5,9 @@
 package com.example.repository;
 
 import com.example.model.Artist;
+import com.example.model.User;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ArtistRepository extends MongoRepository<Artist, String> {
     List<Artist> findAllByCompanyId(String companyId);
+    Optional<Artist> findByAccount_Id(String accountId);
 }

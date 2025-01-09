@@ -8,18 +8,22 @@ import com.example.exception.EmailAlreadyExistsException;
 import com.example.exception.OtpGenerationException;
 import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
+import com.example.model.Company;
 import com.example.request.EmailReq;
 import com.example.request.LoginRequest;
 import com.example.request.VerificationRequest;
 import com.example.service.AccountService;
 import com.example.utils.JwtUtil;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.mail.AuthenticationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,6 +64,15 @@ public class AuthenController {
             return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.BAD_REQUEST, null); // 400 Bad Request
         } catch (Exception e) {
             return ResponseHandler.resBuilder("Có lỗi không xác định xảy ra: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAccount(@RequestBody EmailReq email) {
+        try {
+            Optional<Account> listCompany = accountService.findAccountByEmail(email.getEmail());
+            return ResponseHandler.resBuilder("Lấy thông tin tất cả công ty thành công.", HttpStatus.CREATED, listCompany.get());
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
 

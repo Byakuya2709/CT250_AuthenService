@@ -4,6 +4,7 @@
  */
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 import org.springframework.data.annotation.Id;
@@ -28,6 +29,7 @@ public class User implements Serializable {
     private String imageURL;
 
     @DBRef
+    @JsonIgnore
     private Account account;
 
     public enum Gender {
