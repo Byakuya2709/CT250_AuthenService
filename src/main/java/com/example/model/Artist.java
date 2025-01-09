@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.model;
 
 import java.io.Serializable;
@@ -10,27 +6,26 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-/**
- *
- * @author admin
- */
 @Document(collection = "artists")
-public class Artist implements Serializable{
+public class Artist implements Serializable {
 
     @Id
     private String id;
     private String artistName;
-    private String ContactMail;
-    private String ContactPhone;
+    private String contactMail;
+    private String contactPhone;
     private User.Gender artistGender;
     private Date artistBirth;
     private String imageURL;
+    
+    // Công ty mà nghệ sĩ này thuộc về
+    @DBRef
+    private Company company; // Mỗi nghệ sĩ chỉ thuộc về một công ty duy nhất
+
     @DBRef
     private Account account;
 
-    public Artist() {
-    }
-
+    // Getters và Setters
     public String getId() {
         return id;
     }
@@ -48,19 +43,19 @@ public class Artist implements Serializable{
     }
 
     public String getContactMail() {
-        return ContactMail;
+        return contactMail;
     }
 
-    public void setContactMail(String ContactMail) {
-        this.ContactMail = ContactMail;
+    public void setContactMail(String contactMail) {
+        this.contactMail = contactMail;
     }
 
     public String getContactPhone() {
-        return ContactPhone;
+        return contactPhone;
     }
 
-    public void setContactPhone(String ContactPhone) {
-        this.ContactPhone = ContactPhone;
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
     }
 
     public User.Gender getArtistGender() {
@@ -87,6 +82,14 @@ public class Artist implements Serializable{
         this.imageURL = imageURL;
     }
 
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
     public Account getAccount() {
         return account;
     }
@@ -94,5 +97,4 @@ public class Artist implements Serializable{
     public void setAccount(Account account) {
         this.account = account;
     }
-
 }

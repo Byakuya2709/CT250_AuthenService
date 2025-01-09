@@ -1,33 +1,37 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import org.bson.types.ObjectId;
+import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-/**
- *
- * @author admin
- */
 @Document(collection = "companys")
-public class Company implements Serializable{
+public class Company implements Serializable {
+    
     @Id
     private String id;
     private String companyName;
     private String companyMail;
     private String companyPhone;
     private String companyAddress;
+    private String logoURL;
     private Date publishDate;
     
+    // Danh sách nghệ sĩ thuộc về công ty
+    @DBRef
+    private List<Artist> artists; // Một công ty có thể có nhiều nghệ sĩ
+
     @DBRef
     private Account account;
 
+    public Company() {
+        artists = new ArrayList<>();
+    }
+
+    // Getters và Setters
     public String getId() {
         return id;
     }
@@ -76,12 +80,28 @@ public class Company implements Serializable{
         this.publishDate = publishDate;
     }
 
+    public List<Artist> getArtists() {
+        return artists;
+    }
+
+    public void setArtists(List<Artist> artists) {
+        this.artists = artists;
+    }
+
     public Account getAccount() {
         return account;
     }
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public String getLogoURL() {
+        return logoURL;
+    }
+
+    public void setLogoURL(String logoURL) {
+        this.logoURL = logoURL;
     }
     
 }
