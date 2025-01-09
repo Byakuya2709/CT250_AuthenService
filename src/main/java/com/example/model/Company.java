@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +26,7 @@ public class Company implements Serializable {
     private List<Artist> artists; // Một công ty có thể có nhiều nghệ sĩ
 
     @DBRef
+    @JsonIgnore
     private Account account;
 
     public Company() {

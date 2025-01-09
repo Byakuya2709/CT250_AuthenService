@@ -6,28 +6,37 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "artists")
-public class Artist implements Serializable {
+    @Document(collection = "artists")
+    public class Artist implements Serializable {
 
-    @Id
-    private String id;
-    private String artistName;
-    private String contactMail;
-    private String contactPhone;
-    private User.Gender artistGender;
-    private Date artistBirth;
-    private String imageURL;
-    
-    // Công ty mà nghệ sĩ này thuộc về
-    @DBRef
-    private Company company; // Mỗi nghệ sĩ chỉ thuộc về một công ty duy nhất
+        @Id
+        private String id;
+        private String artistName;
+        private String contactMail;
+        private String contactPhone;
+        private User.Gender artistGender;
+        private Date artistBirth;
+        private String imageURL;
+        private String artistBio;
 
-    @DBRef
-    private Account account;
+        // Công ty mà nghệ sĩ này thuộc về
+        @DBRef
+        private Company company; // Mỗi nghệ sĩ chỉ thuộc về một công ty duy nhất
+
+        @DBRef
+        private Account account;
 
     // Getters và Setters
     public String getId() {
         return id;
+    }
+
+    public String getArtistBio() {
+        return artistBio;
+    }
+
+    public void setArtistBio(String artistBio) {
+        this.artistBio = artistBio;
     }
 
     public void setId(String id) {

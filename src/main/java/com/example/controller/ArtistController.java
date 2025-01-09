@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.Artist;
 import com.example.service.ArtistService;
+import com.example.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +16,20 @@ public class ArtistController {
 
     @Autowired
     private ArtistService artistService;
+    @Autowired
+    private CompanyService companyService;
 
     // Endpoint để tạo mới một nghệ sĩ
     @PostMapping("/create")
-    public ResponseEntity<?> createArtist(@RequestBody Artist artist) {
+    public ResponseEntity<?> createArtist(@RequestBody Artist artist, @RequestParam String accountId, @RequestParam String companyId) {
         try {
+            // Validate accountId
+            if (accountId == null || accountId.isEmpty()) {
+                return ResponseHandler.resBuilder("Account ID is required.", HttpStatus.BAD_REQUEST, null);
+            }
+
             // Lưu nghệ sĩ mới
-            Artist newArtist = artistService.saveArtist(artist);
+            Artist newArtist = companyService.addArtistToCompany(artist, accountId,companyId);
             return ResponseHandler.resBuilder("Nghệ sĩ đã được tạo thành công.", HttpStatus.CREATED, newArtist);
         } catch (Exception e) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo nghệ sĩ.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -32,6 +40,11 @@ public class ArtistController {
     @PostMapping("/add-to-company")
     public ResponseEntity<?> addArtistToCompany(@RequestParam String companyId, @RequestBody Artist artist) {
         try {
+            // Validate companyId
+            if (companyId == null || companyId.isEmpty()) {
+                return ResponseHandler.resBuilder("Company ID is required.", HttpStatus.BAD_REQUEST, null);
+            }
+
             // Thêm nghệ sĩ vào công ty
             artistService.addArtistToCompany(companyId, artist);
             return ResponseHandler.resBuilder("Nghệ sĩ đã được thêm vào công ty thành công.", HttpStatus.OK, null);

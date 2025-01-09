@@ -50,16 +50,16 @@ public class CompanyController {
         }
     }
 
-    // Endpoint để thêm một nghệ sĩ vào công ty
-    @PostMapping("/{companyId}/add-artist")
-    public ResponseEntity<?> addArtistToCompany(@PathVariable String companyId, @RequestBody Artist artist) {
-        try {
-            companyService.addArtistToCompany(companyId, artist);
-            return ResponseHandler.resBuilder("Thêm nghệ sĩ vào công ty thành công.", HttpStatus.CREATED, null);
-        } catch (Exception ex) {
-            return ResponseHandler.resBuilder("Có lỗi xảy ra khi thêm nghệ sĩ vào công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-        }
-    }
+//    // Endpoint để thêm một nghệ sĩ vào công ty
+//    @PostMapping("/{companyId}/add-artist")
+//    public ResponseEntity<?> addArtistToCompany(@PathVariable String companyId, @RequestBody Artist artist) {
+//        try {
+//            companyService.addArtistToCompany(companyId, artist);
+//            return ResponseHandler.resBuilder("Thêm nghệ sĩ vào công ty thành công.", HttpStatus.CREATED, null);
+//        } catch (Exception ex) {
+//            return ResponseHandler.resBuilder("Có lỗi xảy ra khi thêm nghệ sĩ vào công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+//        }
+//    }
 
     // Endpoint để lấy tất cả nghệ sĩ của công ty
     @GetMapping("/{companyId}/artists")
