@@ -84,4 +84,32 @@ public class ArtistController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin nghệ sĩ.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAllArtists() {
+        try {
+            List<Artist> listArtist = artistService.getAllArtists();
+
+            if (listArtist.isEmpty()) {
+                return ResponseHandler.resBuilder(
+                        "Không tồn tại nghệ sĩ nào.",
+                        HttpStatus.NOT_FOUND,
+                        null
+                );
+            }
+
+            return ResponseHandler.resBuilder(
+                    "Lấy thông tin tất cả nghệ sĩ thành công.",
+                    HttpStatus.OK,
+                    listArtist
+            );
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder(
+                    "Có lỗi xảy ra khi lấy thông tin nghệ sĩ.",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    null
+            );
+        }
+    }
+ 
 }

@@ -23,6 +23,7 @@ public class Company implements Serializable {
     
     // Danh sách nghệ sĩ thuộc về công ty
     @DBRef
+    @JsonIgnore
     private List<Artist> artists; // Một công ty có thể có nhiều nghệ sĩ
 
     @DBRef

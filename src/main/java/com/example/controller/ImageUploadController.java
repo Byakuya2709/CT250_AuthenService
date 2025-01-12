@@ -7,6 +7,7 @@ package com.example.controller;
 import com.example.service.CloudinaryService;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class ImageUploadController {
             @RequestParam(value = "accountId", required = true) String userId
     ) {
         try {
-            if (file==null) {
+            if (file == null) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "Image uploaded successfully");
                 response.put("imageUrl", "https://res.cloudinary.com/dtza0pk4w/image/upload/v1734758873/default_avatar.jpg");
@@ -68,10 +69,83 @@ public class ImageUploadController {
         }
     }
 
+    @PostMapping("/upload/events/poster")
+    public ResponseEntity<?> uploadEventPoster(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "eventTitle", required = true) String eventTitle
+    ) {
+        try {
+            if (file == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Image uploaded successfully");
+                response.put("imageUrl", "https://res.cloudinary.com/dtza0pk4w/image/upload/v1736700339/mbs_ortxmh.jpg");
+                return ResponseHandler.resBuilder("Sử dụng poster mặc định!", HttpStatus.OK, response);
+            }
+
+            // Kiểm tra định dạng file
+            if (!isValidImage(file)) {
+                return ResponseHandler.resBuilder("Invalid image file format", HttpStatus.BAD_REQUEST, null);
+            }
+
+            // Kiểm tra kích thước file
+            if (file.getSize() > MAX_FILE_SIZE) {
+                return ResponseHandler.resBuilder("File size exceeds the limit", HttpStatus.BAD_REQUEST, null);
+            }
+            String sanitizedEventTitle = eventTitle.replaceAll("[^a-zA-Z0-9]", "_");
+            // Gọi service để upload file
+            String imageUrl = cloudinaryService.uploadFile(file, "events/" + sanitizedEventTitle, "poster");
+
+            // Trả về kết quả
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Image uploaded successfully");
+            response.put("imageUrl", imageUrl);
+
+            return ResponseHandler.resBuilder("Image uploaded successfully", HttpStatus.OK, response);
+
+        } catch (IOException e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
 // Hàm kiểm tra định dạng file (ví dụ: chỉ chấp nhận các file ảnh JPEG, PNG)
     private boolean isValidImage(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && (contentType.equals("image/jpeg") || contentType.equals("image/png"));
+    }
+
+    @PostMapping("/upload/events")
+    public ResponseEntity<?> uploadMultipleFiles(
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam(value = "eventTitle", required = true) String eventTitle) throws IOException {
+        try {
+            if (files.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "No files provided. Using default poster.");
+                response.put("imageUrl", "https://res.cloudinary.com/dtza0pk4w/image/upload/v1736700339/mbs_ortxmh.jpg");
+                return ResponseHandler.resBuilder("Sử dụng poster mặc định!", HttpStatus.OK, response);
+            }
+
+            // Làm sạch `eventTitle` và `eventCompany`
+            String sanitizedEventTitle = eventTitle.replaceAll("[^a-zA-Z0-9]", "_");
+
+            // Kiểm tra từng file trong danh sách
+            for (MultipartFile file : files) {
+                if (!isValidImage(file)) {
+                    return ResponseHandler.resBuilder("Invalid image file format", HttpStatus.BAD_REQUEST, null);
+                }
+
+                if (file.getSize() > MAX_FILE_SIZE) {
+                    return ResponseHandler.resBuilder("File size exceeds the limit", HttpStatus.BAD_REQUEST, null);
+                }
+            }
+
+            // Upload nhiều file
+            List<String> imageUrl = cloudinaryService.uploadManyFile(files, "events/" + sanitizedEventTitle);
+
+            return ResponseHandler.resBuilder("Image uploaded successfully", HttpStatus.OK, imageUrl);
+        } catch (IOException e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
     }
 
 }

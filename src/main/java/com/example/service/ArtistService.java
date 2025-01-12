@@ -63,4 +63,8 @@ public class ArtistService {
         return artist.orElseThrow(() -> new RuntimeException("No user found for account ID: " + accountId));
 
     }
+    
+     public List<Artist> getAllArtists() {
+        return artistRepository.findAll();
+    }
 }

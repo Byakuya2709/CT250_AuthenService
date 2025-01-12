@@ -6,7 +6,9 @@ package com.example.service;
 
 import com.cloudinary.Cloudinary;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class CloudinaryService {
     @Autowired
     private Cloudinary cloudinary;
 
-   public String uploadFile(MultipartFile file, String folder,String fileName) throws IOException {
+    public String uploadFile(MultipartFile file, String folder, String fileName) throws IOException {
 
         // Cấu hình upload
         Map<String, Object> options = new HashMap<>();
@@ -35,6 +37,19 @@ public class CloudinaryService {
 
         // Lấy URL trả về
         return uploadResult.get("secure_url").toString();
+    }
+
+    public List<String> uploadManyFile(List<MultipartFile> files, String folder) throws IOException {
+        List<String> urls = new ArrayList<>();
+        int i = 1;
+        for (MultipartFile file : files) {
+            String fileName = "image_" + i;
+            i++;
+            String url = uploadFile(file, folder, fileName);
+            urls.add(url);
+
+        }
+        return urls;
     }
 
 }

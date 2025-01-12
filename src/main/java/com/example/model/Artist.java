@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
         // Công ty mà nghệ sĩ này thuộc về
         @DBRef
+        @JsonIgnore
         private Company company; // Mỗi nghệ sĩ chỉ thuộc về một công ty duy nhất
 
         @DBRef
