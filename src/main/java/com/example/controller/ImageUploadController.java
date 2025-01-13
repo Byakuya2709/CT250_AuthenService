@@ -6,6 +6,7 @@ package com.example.controller;
 
 import com.example.service.CloudinaryService;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,10 +120,7 @@ public class ImageUploadController {
             @RequestParam(value = "eventTitle", required = true) String eventTitle) throws IOException {
         try {
             if (files.isEmpty()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "No files provided. Using default poster.");
-                response.put("imageUrl", "https://res.cloudinary.com/dtza0pk4w/image/upload/v1736700339/mbs_ortxmh.jpg");
-                return ResponseHandler.resBuilder("Sử dụng poster mặc định!", HttpStatus.OK, response);
+                return ResponseHandler.resBuilder("Sử dụng poster mặc định!", HttpStatus.OK, "https://res.cloudinary.com/dtza0pk4w/image/upload/v1736700339/mbs_ortxmh.jpg");
             }
 
             // Làm sạch `eventTitle` và `eventCompany`
@@ -146,6 +144,7 @@ public class ImageUploadController {
         } catch (IOException e) {
             return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
+
     }
 
 }
