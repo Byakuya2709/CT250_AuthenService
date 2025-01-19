@@ -27,9 +27,18 @@ public class Account implements Serializable {
 
     @Field("type")
     private Type type;
+    
+    @Field("status")
+    private AccountStatus status;
 
+    
+    public enum AccountStatus{
+        ACTIVE,
+        INACTIVE
+    }
     // Default constructor
     public Account() {
+        this.status = AccountStatus.ACTIVE;
     }
 
     // Parameterized constructor

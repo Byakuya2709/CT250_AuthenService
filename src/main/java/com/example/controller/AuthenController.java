@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,6 +67,7 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Có lỗi không xác định xảy ra: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
     @GetMapping("/get-all")
     public ResponseEntity<?> getAccount(@RequestBody EmailReq email) {
         try {
@@ -134,4 +136,22 @@ public class AuthenController {
         }
     }
 
+    @GetMapping("/account/{accountId}")
+    public ResponseEntity<?> getAccount(@PathVariable("accountId") String accountId) {
+        try {
+            // Lấy thông tin tài khoản từ service
+            Account account = accountService.getAccountById(accountId);
+
+            // Nếu không tìm thấy tài khoản
+            if (account == null) {
+                return ResponseHandler.resBuilder("Không tìm thấy tài khoản", HttpStatus.NOT_FOUND, null);
+            }
+
+            // Trả về thông tin tài khoản
+            return ResponseHandler.resBuilder("Lấy thông tin tài khoản thành công", HttpStatus.OK, account);
+        } catch (Exception ex) {
+            // Trường hợp lỗi hệ thống
+            return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
 }

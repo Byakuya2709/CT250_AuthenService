@@ -14,7 +14,9 @@ import org.springframework.stereotype.Repository;
  * @author admin
  */
 @Repository
-public interface AccountRepository extends MongoRepository<Account, String>{
-     Optional<Account> findByEmail(String email);
-      boolean existsByEmail(String email); // Renamed to follow standard convention
+public interface AccountRepository extends MongoRepository<Account, String> {
+
+    Optional<Account> findByEmail(String email);
+
+    boolean existsByEmail(String email); // Renamed to follow standard convention
 }

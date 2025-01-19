@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AccountService {
 // Constants
+
     private static final int OTP_VALIDITY_MINUTES = 10;
     private static final String ERROR_EMAIL_EMPTY = "Email không được để trống";
     private static final String ERROR_OTP_INVALID = "Mã OTP không hợp lệ hoặc đã hết hạn";
@@ -53,6 +54,14 @@ public class AccountService {
     @Transactional
     public Account saveAccount(Account account) {
         return accountRepository.save(account);
+    }
+
+    public Account getAccountById(String id) {
+        Optional<Account> getAcc = accountRepository.findById(id);
+        if (getAcc.isPresent()) {
+            return getAcc.get();
+        }
+        else return null;
     }
 
     public boolean existsByEmail(String email) {
@@ -109,10 +118,10 @@ public class AccountService {
             boolean isOtpValid = otpService.verifyOtp(email, otp, type);
             if (isOtpValid) {
                 otpService.deleteOtp(email);
-             
+
                 return "Xác thực OTP thành công";
             } else {
-  
+
                 throw new OtpGenerationException(ERROR_OTP_INVALID);
             }
         } catch (Exception e) {

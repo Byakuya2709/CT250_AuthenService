@@ -19,15 +19,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
         private Date artistBirth;
         private String imageURL;
         private String artistBio;
-
         // Công ty mà nghệ sĩ này thuộc về
         @DBRef
         @JsonIgnore
         private Company company; // Mỗi nghệ sĩ chỉ thuộc về một công ty duy nhất
 
         @DBRef
-        @JsonIgnore
         private Account account;
+
+    public Artist() {
+    }
 
     // Getters và Setters
     public String getId() {
