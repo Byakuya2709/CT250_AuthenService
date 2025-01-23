@@ -38,7 +38,7 @@ public class Account implements Serializable {
     }
     // Default constructor
     public Account() {
-        this.status = AccountStatus.ACTIVE;
+        this.status = AccountStatus.INACTIVE;
     }
 
     // Parameterized constructor
@@ -87,4 +87,14 @@ public class Account implements Serializable {
         ARTIST,
         ADMIN
     }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
+    
+    
 }

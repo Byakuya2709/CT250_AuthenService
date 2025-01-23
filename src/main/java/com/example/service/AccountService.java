@@ -5,6 +5,7 @@
 package com.example.service;
 
 import com.example.dto.OtpGenerate;
+import com.example.exception.AccountBlockedException;
 import com.example.exception.EmailAlreadyExistsException;
 import com.example.exception.OtpGenerationException;
 import com.example.exception.UserNotFoundException;
@@ -60,8 +61,9 @@ public class AccountService {
         Optional<Account> getAcc = accountRepository.findById(id);
         if (getAcc.isPresent()) {
             return getAcc.get();
+        } else {
+            return null;
         }
-        else return null;
     }
 
     public boolean existsByEmail(String email) {
@@ -133,12 +135,30 @@ public class AccountService {
         Account account = accountRepository.findByEmail(email).orElseThrow(() -> {
             return new UserNotFoundException("Tài khoản không tồn tại");
         });
-
+        if (account.getStatus() == Account.AccountStatus.INACTIVE)
+           throw new AccountBlockedException("Tài khoản đã bị khóa");
         if (verifyPassword(password, account.getPassword())) {
             return account;
         } else {
             throw new AuthenticationFailedException("Xác thực thất bại");
         }
+    }
+
+    public Account getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Tài khoản không tồn tại: " + email));
+    }
+
+    public Account blockAccount(String email) {
+        // Fetch the account by email or throw an exception if not found
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Tài khoản không tồn tại"));
+
+        // Update the account status to INACTIVE
+        account.setStatus(Account.AccountStatus.INACTIVE);
+
+        // Save and return the updated account
+        return accountRepository.save(account);
     }
 
 }

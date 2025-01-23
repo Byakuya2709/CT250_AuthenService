@@ -4,6 +4,7 @@
  */
 package com.example.controller;
 
+import com.example.exception.AccountBlockedException;
 import com.example.exception.EmailAlreadyExistsException;
 import com.example.exception.OtpGenerationException;
 import com.example.exception.UserNotFoundException;
@@ -68,13 +69,39 @@ public class AuthenController {
         }
     }
 
+    @PostMapping("/generate-passcode")
+    public ResponseEntity<?> generateVerificationPasswordCode(@RequestBody EmailReq req) {
+        try {
+            // Validate input
+            if (req.getEmail() == null || req.getEmail().trim().isEmpty()) {
+                return ResponseHandler.resBuilder("Email không được để trống", HttpStatus.BAD_REQUEST, null);
+            }
+            // Gửi mã OTP đến email
+            String message = accountService.generateCode(req.getEmail().trim(), "ResetPassword");
+
+            return ResponseHandler.resBuilder(message, HttpStatus.CREATED, null);
+        } catch (IllegalArgumentException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.CONFLICT, null); // 409 Conflict
+        } catch (EmailAlreadyExistsException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.CONFLICT, null); // 409 Conflict
+        } catch (OtpGenerationException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null); // 500 Internal Server Error
+        } catch (RuntimeException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.BAD_REQUEST, null); // 400 Bad Request
+        } catch (Exception e) {
+            return ResponseHandler.resBuilder("Có lỗi không xác định xảy ra: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+    
+    
+
     @GetMapping("/get-all")
     public ResponseEntity<?> getAccount(@RequestBody EmailReq email) {
         try {
             Optional<Account> listCompany = accountService.findAccountByEmail(email.getEmail());
-            return ResponseHandler.resBuilder("Lấy thông tin tất cả công ty thành công.", HttpStatus.CREATED, listCompany.get());
+            return ResponseHandler.resBuilder("Lấy thông tin tất cả tài khoản thành công.", HttpStatus.CREATED, listCompany.get());
         } catch (Exception ex) {
-            return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+            return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin tài khoản.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
 
@@ -94,6 +121,7 @@ public class AuthenController {
 //             If OTP is valid, proceed with account creation
             String encodedPassword = accountService.encodePassword(req.getPassword());
             Account account = new Account(req.getEmail().trim(), encodedPassword, Account.Type.valueOf(req.getRole()));
+            account.setStatus(Account.AccountStatus.ACTIVE);
             Account createdAccount = accountService.saveAccount(account);
             return ResponseHandler.resBuilder("Tạo tài khoản thành công", HttpStatus.CREATED, createdAccount);
 
@@ -130,6 +158,8 @@ public class AuthenController {
             return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.BAD_REQUEST, null);
         } catch (AuthenticationFailedException ex) {
             return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.UNAUTHORIZED, ex.getMessage());
+        } catch (AccountBlockedException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.FORBIDDEN, ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseHandler.resBuilder("Có lỗi xảy ra trong quá trình đăng nhập", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
@@ -151,6 +181,23 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Lấy thông tin tài khoản thành công", HttpStatus.OK, account);
         } catch (Exception ex) {
             // Trường hợp lỗi hệ thống
+            return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+
+    @PostMapping("/blocked")
+    public ResponseEntity<?> blockAccountTemporary(@RequestBody EmailReq req) {
+        try {
+            // Fetch account and block it using the service
+            Account account = accountService.blockAccount(req.getEmail());
+
+            // Return a success response
+            return ResponseHandler.resBuilder("Đã tạm thời khóa tài khoản", HttpStatus.OK, account);
+        } catch (UserNotFoundException ex) {
+            // Handle specific exceptions like UserNotFoundException
+            return ResponseHandler.resBuilder("Tài khoản không tồn tại", HttpStatus.NOT_FOUND, ex.getMessage());
+        } catch (Exception ex) {
+            // Handle generic exceptions
             return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
