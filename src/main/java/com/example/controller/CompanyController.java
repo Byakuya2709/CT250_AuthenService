@@ -1,7 +1,6 @@
 package com.example.controller;
 
 import com.example.dto.CompanyDTO;
-import com.example.model.Artist;
 import com.example.model.Company;
 import com.example.service.CompanyService;
 import java.util.ArrayList;
@@ -69,13 +68,5 @@ public class CompanyController {
 //        }
 //    }
     // Endpoint để lấy tất cả nghệ sĩ của công ty
-    @GetMapping("/{companyId}/artists")
-    public ResponseEntity<?> getAllArtistsByCompany(@PathVariable String companyId) {
-        try {
-            List<Artist> artists = companyService.getAllArtistsByCompanyId(companyId);
-            return ResponseHandler.resBuilder("Lấy danh sách nghệ sĩ của công ty thành công.", HttpStatus.OK, artists);
-        } catch (Exception ex) {
-            return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy danh sách nghệ sĩ.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-        }
-    }
+   
 }

@@ -20,19 +20,10 @@ public class Company implements Serializable {
     private String companyAddress;
     private String logoURL;
     private Date publishDate;
-    
-    // Danh sách nghệ sĩ thuộc về công ty
-    @DBRef
-    @JsonIgnore
-    private List<Artist> artists; // Một công ty có thể có nhiều nghệ sĩ
 
     @DBRef
     @JsonIgnore
     private Account account;
-
-    public Company() {
-        artists = new ArrayList<>();
-    }
 
     // Getters và Setters
     public String getId() {
@@ -81,14 +72,6 @@ public class Company implements Serializable {
 
     public void setPublishDate(Date publishDate) {
         this.publishDate = publishDate;
-    }
-
-    public List<Artist> getArtists() {
-        return artists;
-    }
-
-    public void setArtists(List<Artist> artists) {
-        this.artists = artists;
     }
 
     public Account getAccount() {

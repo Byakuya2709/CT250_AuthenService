@@ -22,7 +22,6 @@ public class CompanyDTO {
     private String companyAddress;
     private String logoURL;
     private Date publishDate;
-    private List<String> artistIds;  // Only store IDs of the artists
     private String accountId;         // Only store the ID of the account
 
     // Getters and Setters
@@ -82,14 +81,6 @@ public class CompanyDTO {
         this.publishDate = publishDate;
     }
 
-    public List<String> getArtistIds() {
-        return artistIds;
-    }
-
-    public void setArtistIds(List<String> artistIds) {
-        this.artistIds = artistIds;
-    }
-
     public String getAccountId() {
         return accountId;
     }
@@ -114,13 +105,6 @@ public class CompanyDTO {
             companyDTO.setLogoURL(company.getLogoURL());
             companyDTO.setPublishDate(company.getPublishDate());
 
-            // Map the list of artists to their IDs
-            if (company.getArtists() != null) {
-                List<String> artistIds = company.getArtists().stream()
-                        .map(artist -> artist.getId())
-                        .collect(Collectors.toList());
-                companyDTO.setArtistIds(artistIds);
-            }
 
             // Set the account ID
             if (company.getAccount() != null) {
