@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.dto.CompanyDTO;
+import com.example.exception.CompanyNotFoundEx;
 import com.example.model.Company;
 import com.example.service.CompanyService;
 import java.util.ArrayList;
@@ -29,6 +30,17 @@ public class CompanyController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
+    @PutMapping("/update")
+    public ResponseEntity<?> createCompany(@RequestBody CompanyDTO company) {
+        try {
+            Company savedCompany = companyService.updateCompany(company);
+            return ResponseHandler.resBuilder("Cập nhật thông tin công ty thành công.", HttpStatus.OK, CompanyDTO.CompanyMapper.toDTO(savedCompany));
+        } catch (IllegalArgumentException e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra khi cập công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
 
     @GetMapping("/get-all")
     public ResponseEntity<?> getAllCompany() {
@@ -47,12 +59,14 @@ public class CompanyController {
     }
 
     // Endpoint để lấy công ty theo ID
-    @GetMapping("/{companyId}")
-    public ResponseEntity<?> getCompany(@PathVariable String companyId) {
+    @GetMapping("/{accountId}")
+    public ResponseEntity<?> getCompany(@PathVariable String accountId) {
         try {
-            Company company = companyService.getCompanyById(companyId);
+            Company company = companyService.getCompanyByAccountId(accountId);
             return ResponseHandler.resBuilder("Lấy thông tin công ty thành công.", HttpStatus.OK, company);
-        } catch (Exception ex) {
+        }catch(CompanyNotFoundEx ex){
+             return ResponseHandler.resBuilder("Thông tin công ty chưa được tạo", HttpStatus.NOT_FOUND, ex.getMessage());
+        }catch (Exception ex) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }

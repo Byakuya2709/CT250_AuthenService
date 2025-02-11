@@ -1,5 +1,7 @@
 package com.example.service;
 
+import com.example.dto.CompanyDTO;
+import com.example.exception.CompanyNotFoundEx;
 import com.example.model.Account;
 import com.example.model.Company;
 import com.example.repository.AccountRepository;
@@ -19,13 +21,14 @@ public class CompanyService {
     @Autowired
     private AccountRepository accountRepository;
 
-
     // Thêm một nghệ sĩ vào công t
-
-
     // Lấy công ty theo ID
     public Company getCompanyById(String companyId) {
-        return companyRepository.findById(companyId).orElseThrow(() -> new RuntimeException("Company not found"));
+        return companyRepository.findById(companyId).orElseThrow(() -> new CompanyNotFoundEx("Company not found"));
+    }
+
+    public Company getCompanyByAccountId(String accountId) {
+        return companyRepository.findByAccount_Id(accountId).orElseThrow(() -> new CompanyNotFoundEx("Company not found"));
     }
 
     // Lưu công ty
@@ -39,6 +42,22 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
+    public Company updateCompany(CompanyDTO req) {
+        Optional<Company> company = companyRepository.findById(req.getId());
+        if (company.isEmpty()) {
+            throw new CompanyNotFoundEx("Công ty");
+        }
+        Company existingCompany = company.get();
+        System.out.println(existingCompany.toString());
+        existingCompany.setCompanyName(req.getCompanyName());
+        existingCompany.setCompanyMail(req.getCompanyMail());
+        existingCompany.setCompanyPhone(req.getCompanyPhone());
+        existingCompany.setCompanyAddress(req.getCompanyAddress());
+        existingCompany.setLogoURL(req.getLogoURL());
+
+        return companyRepository.save(existingCompany);
+    }
+
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
     }
@@ -47,6 +66,5 @@ public class CompanyService {
         return companyRepository.findByAccount_Id(accountId)
                 .orElseThrow(() -> new RuntimeException("No company found for account ID: " + accountId));
     }
-
 
 }
