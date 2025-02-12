@@ -6,12 +6,14 @@ package com.example.service;
 
 import com.example.dto.OtpGenerate;
 import com.example.exception.AccountBlockedException;
+import com.example.exception.AccountNotFoundEx;
 import com.example.exception.EmailAlreadyExistsException;
 import com.example.exception.OtpGenerationException;
 import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
 import com.example.model.Otp;
 import com.example.repository.AccountRepository;
+import com.example.request.ResetPasswordRequest;
 import com.example.request.VerificationRequest;
 import com.example.utils.JwtUtil;
 import java.util.List;
@@ -107,7 +109,56 @@ public class AccountService {
         return "Mã OTP đã được gửi đến email của bạn";
     }
 
+    public String generateCode2(String email, String type) {
+        if (email.isEmpty() || type.isEmpty()) {
+            throw new IllegalArgumentException(ERROR_EMAIL_EMPTY);
+        }
+
+        if (!existsByEmail(email)) {
+            throw new AccountNotFoundEx();
+        }
+
+        List<Otp> existingOtps = otpService.findAllByEmail(email);
+        if (!existingOtps.isEmpty()) {
+            otpService.deleteAllByEmail(email);
+        }
+
+        String otp = OtpGenerate.generateOtp();
+        try {
+            otpService.saveOtp(email, otp, type, OTP_VALIDITY_MINUTES);
+//            emailService.sendVerificationEmail(email, otp);
+        } catch (Exception e) {
+            throw new OtpGenerationException("Có lỗi xảy ra khi lưu mã OTP hoặc gửi email.");
+        }
+
+        return "Mã OTP đã được gửi đến email của bạn";
+    }
+
     public String verifyOTP(VerificationRequest verificationReq) {
+        String email = verificationReq.getEmail().trim();
+        String otp = verificationReq.getCode().trim();
+        String type = verificationReq.getType().trim();
+
+        if (email.isEmpty() || otp.isEmpty() || type.isEmpty()) {
+            throw new IllegalArgumentException(ERROR_EMAIL_EMPTY);
+        }
+
+        try {
+            boolean isOtpValid = otpService.verifyOtp(email, otp, type);
+            if (isOtpValid) {
+                otpService.deleteOtp(email);
+
+                return "Xác thực OTP thành công";
+            } else {
+
+                throw new OtpGenerationException(ERROR_OTP_INVALID);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi không xác định xảy ra khi xác thực mã OTP.");
+        }
+    }
+
+    public String verifyOTP2(ResetPasswordRequest verificationReq) {
         String email = verificationReq.getEmail().trim();
         String otp = verificationReq.getCode().trim();
         String type = verificationReq.getType().trim();
@@ -135,8 +186,9 @@ public class AccountService {
         Account account = accountRepository.findByEmail(email).orElseThrow(() -> {
             return new UserNotFoundException("Tài khoản không tồn tại");
         });
-        if (account.getStatus() == Account.AccountStatus.INACTIVE)
-           throw new AccountBlockedException("Tài khoản đã bị khóa");
+        if (account.getStatus() == Account.AccountStatus.INACTIVE) {
+            throw new AccountBlockedException("Tài khoản đã bị khóa");
+        }
         if (verifyPassword(password, account.getPassword())) {
             return account;
         } else {
@@ -161,4 +213,22 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    public boolean updatePassword(String email, String newPassword) {
+        // Fetch the account by email or throw an exception if not found
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Tài khoản không tồn tại"));
+        try {
+            // Mã hóa mật khẩu mới trước khi lưu
+            String encodedPassword = this.encodePassword(newPassword);
+            account.setPassword(encodedPassword);
+            account.setStatus(Account.AccountStatus.ACTIVE);
+            // Lưu tài khoản đã cập nhật với mật khẩu mới
+            accountRepository.save(account);
+
+            return true; // Trả về true nếu cập nhật thành công
+        } catch (Exception e) {
+
+            return false; // Trả về false nếu có lỗi xảy ra
+        }
+    }
 }

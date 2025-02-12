@@ -5,6 +5,7 @@
 package com.example.controller;
 
 import com.example.exception.AccountBlockedException;
+import com.example.exception.AccountNotFoundEx;
 import com.example.exception.EmailAlreadyExistsException;
 import com.example.exception.OtpGenerationException;
 import com.example.exception.UserNotFoundException;
@@ -12,6 +13,8 @@ import com.example.model.Account;
 import com.example.model.Company;
 import com.example.request.EmailReq;
 import com.example.request.LoginRequest;
+import com.example.request.NewPasswordRequest;
+import com.example.request.ResetPasswordRequest;
 import com.example.request.VerificationRequest;
 import com.example.service.AccountService;
 import com.example.utils.JwtUtil;
@@ -77,12 +80,12 @@ public class AuthenController {
                 return ResponseHandler.resBuilder("Email không được để trống", HttpStatus.BAD_REQUEST, null);
             }
             // Gửi mã OTP đến email
-            String message = accountService.generateCode(req.getEmail().trim(), "ResetPassword");
+            String message = accountService.generateCode2(req.getEmail().trim(), "ResetPassword");
 
             return ResponseHandler.resBuilder(message, HttpStatus.CREATED, null);
         } catch (IllegalArgumentException ex) {
             return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.CONFLICT, null); // 409 Conflict
-        } catch (EmailAlreadyExistsException ex) {
+        } catch (AccountNotFoundEx ex) {
             return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.CONFLICT, null); // 409 Conflict
         } catch (OtpGenerationException ex) {
             return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null); // 500 Internal Server Error
@@ -92,8 +95,6 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Có lỗi không xác định xảy ra: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
-    
-    
 
     @GetMapping("/get-all")
     public ResponseEntity<?> getAccount(@RequestBody EmailReq email) {
@@ -102,6 +103,41 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Lấy thông tin tất cả tài khoản thành công.", HttpStatus.CREATED, listCompany.get());
         } catch (Exception ex) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin tài khoản.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+@PostMapping("/account/resetpassword")
+    public ResponseEntity<?> resetPass(@RequestBody NewPasswordRequest req) {
+        String email = req.getEmail().trim();
+        String newPassword = req.getNewPassword();
+        if (email == null || email.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            return ResponseHandler.resBuilder("Email và mật khẩu không được để trống", HttpStatus.BAD_REQUEST, null);
+        }
+
+        boolean isUpdated = accountService.updatePassword(email, newPassword);
+        if (isUpdated) {
+            return ResponseHandler.resBuilder("Mật khẩu đã được thay đổi thành công", HttpStatus.OK, null);
+        } else {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra khi cập nhật mật khẩu, vui lòng thử lại", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+
+    }
+    @PostMapping("/account/verify")
+    public ResponseEntity<?> verifyOTP(@RequestBody ResetPasswordRequest verificationReq) {
+        String email = verificationReq.getEmail();
+        String otp = verificationReq.getCode();
+        String type = verificationReq.getType();
+        System.out.println(type);
+
+        try {
+            String otpVerificationResult = accountService.verifyOTP2(verificationReq);
+            if (!otpVerificationResult.equals("Xác thực OTP thành công")) {
+                return ResponseHandler.resBuilder(otpVerificationResult, HttpStatus.BAD_REQUEST, null); // OTP verification failed
+            }
+            return ResponseHandler.resBuilder(otpVerificationResult, HttpStatus.OK, null); // OTP verification failed
+        } catch (RuntimeException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.BAD_REQUEST, null);
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra khi đăng ký tài khoản.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
 
