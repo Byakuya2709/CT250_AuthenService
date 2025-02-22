@@ -167,9 +167,8 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi đăng ký tài khoản.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> AdminLogin(@RequestBody LoginRequest req) {
         String email = req.getEmail() != null ? req.getEmail().trim() : "";
         String password = req.getPassword();
 
@@ -180,13 +179,87 @@ public class AuthenController {
         try {
             Account account = accountService.authenticate(email, password);
             if (account != null) {
+
+                if (account.getType() == Account.Type.ADMIN) {
+                    String token = jwtUtil.generateToken(account);
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("token", token);
+                    response.put("userId", account.getId());
+                    response.put("role", account.getType().toString());
+
+                    return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);
+                } else return ResponseHandler.resBuilder("Đây không phải tài khoản ADMIN", HttpStatus.FORBIDDEN, null);
+            } else {
+                return ResponseHandler.resBuilder("Thông tin đăng nhập không chính xác", HttpStatus.UNAUTHORIZED, null);
+            }
+        } catch (UserNotFoundException e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        } catch (AuthenticationFailedException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.UNAUTHORIZED, ex.getMessage());
+        } catch (AccountBlockedException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.FORBIDDEN, ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra trong quá trình đăng nhập", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+    @PostMapping("/company/login")
+    public ResponseEntity<?> CompanyLogin(@RequestBody LoginRequest req) {
+        String email = req.getEmail() != null ? req.getEmail().trim() : "";
+        String password = req.getPassword();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            return ResponseHandler.resBuilder("Email và mật khẩu không được để trống", HttpStatus.BAD_REQUEST, null);
+        }
+
+        try {
+            Account account = accountService.authenticate(email, password);
+            if (account != null) {
+                if (account.getType() == Account.Type.COMPANY) {
                 String token = jwtUtil.generateToken(account);
                 Map<String, Object> response = new HashMap<>();
                 response.put("token", token);
                 response.put("userId", account.getId());
                 response.put("role", account.getType().toString());
 
-                return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);
+                return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);}
+                else return ResponseHandler.resBuilder("Đây không phải tài khoản Công ty", HttpStatus.FORBIDDEN, null);
+            } else {
+                return ResponseHandler.resBuilder("Thông tin đăng nhập không chính xác", HttpStatus.UNAUTHORIZED, null);
+            }
+        } catch (UserNotFoundException e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        } catch (AuthenticationFailedException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.UNAUTHORIZED, ex.getMessage());
+        } catch (AccountBlockedException ex) {
+            return ResponseHandler.resBuilder(ex.getMessage(), HttpStatus.FORBIDDEN, ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseHandler.resBuilder("Có lỗi xảy ra trong quá trình đăng nhập", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+
+    @PostMapping("/user/login")
+    public ResponseEntity<?> UserLogin(@RequestBody LoginRequest req) {
+        String email = req.getEmail() != null ? req.getEmail().trim() : "";
+        String password = req.getPassword();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            return ResponseHandler.resBuilder("Email và mật khẩu không được để trống", HttpStatus.BAD_REQUEST, null);
+        }
+
+        try {
+            Account account = accountService.authenticate(email, password);
+            if (account != null) {
+
+                if (account.getType() == Account.Type.USER) {
+                    String token = jwtUtil.generateToken(account);
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("token", token);
+                    response.put("userId", account.getId());
+                    response.put("role", account.getType().toString());
+
+                    return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);}
+                else return ResponseHandler.resBuilder("Đây không phải tài khoản Công ty", HttpStatus.FORBIDDEN, null);
             } else {
                 return ResponseHandler.resBuilder("Thông tin đăng nhập không chính xác", HttpStatus.UNAUTHORIZED, null);
             }

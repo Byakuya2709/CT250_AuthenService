@@ -58,6 +58,24 @@ public class AccountService {
     public Account saveAccount(Account account) {
         return accountRepository.save(account);
     }
+    
+    @Transactional
+    public void createAdminAccount() {
+        String email = "admin@gmail.com";
+
+        // Nếu chưa tồn tại admin thì tạo mới
+        if (!this.existsByEmail(email)) {
+            Account admin = new Account();
+            admin.setEmail(email);
+            admin.setPassword(this.encodePassword("admin123")); // Cần đổi thành mật khẩu mạnh hơn khi deploy
+            admin.setType(Account.Type.ADMIN);  // Không cần valueOf nếu enum có sẵn
+            admin.setStatus(Account.AccountStatus.ACTIVE);
+            accountRepository.save(admin);
+            System.out.println("Tài khoản admin đã được tạo.");
+        } else {
+            System.out.println("Tài khoản admin đã tồn tại.");
+        }
+    }
 
     public Account getAccountById(String id) {
         Optional<Account> getAcc = accountRepository.findById(id);
