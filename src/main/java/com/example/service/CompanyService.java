@@ -7,6 +7,8 @@ import com.example.model.Company;
 import com.example.repository.AccountRepository;
 import com.example.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +42,10 @@ public class CompanyService {
         Account account = accountOptional.get();
         company.setAccount(account);
         return companyRepository.save(company);
+    }
+
+    public Page<Company> getAllCompanyWithPageable(Pageable pageable) {
+        return companyRepository.findAll(pageable);
     }
 
     public Company updateCompany(CompanyDTO req) {

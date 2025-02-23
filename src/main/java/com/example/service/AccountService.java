@@ -13,19 +13,22 @@ import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
 import com.example.model.Otp;
 import com.example.repository.AccountRepository;
+import com.example.repository.CompanyRepository;
 import com.example.request.ResetPasswordRequest;
 import com.example.request.VerificationRequest;
-import com.example.utils.JwtUtil;
+
 import java.util.List;
 import java.util.Optional;
 import javax.mail.AuthenticationFailedException;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- *
  * @author admin
  */
 @Service
@@ -39,7 +42,8 @@ public class AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
-
+    @Autowired
+    private CompanyRepository companyRepository;
     @Autowired
     private OtpService otpService;
 
@@ -58,7 +62,10 @@ public class AccountService {
     public Account saveAccount(Account account) {
         return accountRepository.save(account);
     }
-    
+    public Page<Account> getAllAccountsWithPageable(Pageable pageable){
+        return accountRepository.findAll(pageable);
+    }
+
     @Transactional
     public void createAdminAccount() {
         String email = "admin@gmail.com";
@@ -85,6 +92,8 @@ public class AccountService {
             return null;
         }
     }
+
+//    
 
     public boolean existsByEmail(String email) {
         return accountRepository.existsByEmail(email);
@@ -226,6 +235,38 @@ public class AccountService {
 
         // Update the account status to INACTIVE
         account.setStatus(Account.AccountStatus.INACTIVE);
+
+        // Save and return the updated account
+        return accountRepository.save(account);
+    }
+    public void DeleteAccount(String accountId){
+
+        if (!accountRepository.existsById(accountId)) {
+            throw new UserNotFoundException("Tài khoản không tồn tại");
+        }
+        companyRepository.deleteByAccountId(accountId);
+
+        accountRepository.deleteById(accountId);
+    }
+
+    public Account blockAccountById(String accountId) {
+        // Fetch the account by email or throw an exception if not found
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Tài khoản không tồn tại"));
+
+        // Update the account status to INACTIVE
+        account.setStatus(Account.AccountStatus.INACTIVE);
+
+        // Save and return the updated account
+        return accountRepository.save(account);
+    }
+    public Account UnblockAccountById(String accountId) {
+        // Fetch the account by email or throw an exception if not found
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Tài khoản không tồn tại"));
+
+        // Update the account status to INACTIVE
+        account.setStatus(Account.AccountStatus.ACTIVE);
 
         // Save and return the updated account
         return accountRepository.save(account);

@@ -6,6 +6,9 @@ package com.example.repository;
 
 import com.example.model.Company;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +20,9 @@ import org.springframework.stereotype.Repository;
 public interface CompanyRepository extends MongoRepository<Company, String> {
     // Bạn có thể thêm các phương thức tìm kiếm theo nhu cầu
      Optional<Company> findByAccount_Id(String accountId);
+
+    @Override
+    Page<Company> findAll(Pageable pageable);
+
+    void deleteByAccountId(String accountId);
 }
