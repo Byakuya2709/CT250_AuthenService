@@ -96,7 +96,9 @@ public class AuthenController {
         }
     }
 
-    @GetMapping("/get-all")
+    
+    //fix there
+    @GetMapping("/accounts")
     public ResponseEntity<?> getAccount(@RequestBody EmailReq email) {
         try {
             Optional<Account> listCompany = accountService.findAccountByEmail(email.getEmail());
@@ -105,7 +107,8 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin tài khoản.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
-@PostMapping("/account/resetpassword")
+
+    @PostMapping("/account/resetpassword")
     public ResponseEntity<?> resetPass(@RequestBody NewPasswordRequest req) {
         String email = req.getEmail().trim();
         String newPassword = req.getNewPassword();
@@ -121,6 +124,7 @@ public class AuthenController {
         }
 
     }
+
     @PostMapping("/account/verify")
     public ResponseEntity<?> verifyOTP(@RequestBody ResetPasswordRequest verificationReq) {
         String email = verificationReq.getEmail();
@@ -167,6 +171,7 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi đăng ký tài khoản.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
+
     @PostMapping("/admin/login")
     public ResponseEntity<?> AdminLogin(@RequestBody LoginRequest req) {
         String email = req.getEmail() != null ? req.getEmail().trim() : "";
@@ -188,7 +193,9 @@ public class AuthenController {
                     response.put("role", account.getType().toString());
 
                     return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);
-                } else return ResponseHandler.resBuilder("Đây không phải tài khoản ADMIN", HttpStatus.FORBIDDEN, null);
+                } else {
+                    return ResponseHandler.resBuilder("Đây không phải tài khoản ADMIN", HttpStatus.FORBIDDEN, null);
+                }
             } else {
                 return ResponseHandler.resBuilder("Thông tin đăng nhập không chính xác", HttpStatus.UNAUTHORIZED, null);
             }
@@ -202,6 +209,7 @@ public class AuthenController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra trong quá trình đăng nhập", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
+
     @PostMapping("/company/login")
     public ResponseEntity<?> CompanyLogin(@RequestBody LoginRequest req) {
         String email = req.getEmail() != null ? req.getEmail().trim() : "";
@@ -215,14 +223,16 @@ public class AuthenController {
             Account account = accountService.authenticate(email, password);
             if (account != null) {
                 if (account.getType() == Account.Type.COMPANY) {
-                String token = jwtUtil.generateToken(account);
-                Map<String, Object> response = new HashMap<>();
-                response.put("token", token);
-                response.put("userId", account.getId());
-                response.put("role", account.getType().toString());
+                    String token = jwtUtil.generateToken(account);
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("token", token);
+                    response.put("userId", account.getId());
+                    response.put("role", account.getType().toString());
 
-                return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);}
-                else return ResponseHandler.resBuilder("Đây không phải tài khoản Công ty", HttpStatus.FORBIDDEN, null);
+                    return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);
+                } else {
+                    return ResponseHandler.resBuilder("Đây không phải tài khoản Công ty", HttpStatus.FORBIDDEN, null);
+                }
             } else {
                 return ResponseHandler.resBuilder("Thông tin đăng nhập không chính xác", HttpStatus.UNAUTHORIZED, null);
             }
@@ -258,8 +268,10 @@ public class AuthenController {
                     response.put("userId", account.getId());
                     response.put("role", account.getType().toString());
 
-                    return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);}
-                else return ResponseHandler.resBuilder("Đây không phải tài khoản Công ty", HttpStatus.FORBIDDEN, null);
+                    return ResponseHandler.resBuilder("Đăng nhập thành công", HttpStatus.OK, response);
+                } else {
+                    return ResponseHandler.resBuilder("Đây không phải tài khoản Công ty", HttpStatus.FORBIDDEN, null);
+                }
             } else {
                 return ResponseHandler.resBuilder("Thông tin đăng nhập không chính xác", HttpStatus.UNAUTHORIZED, null);
             }

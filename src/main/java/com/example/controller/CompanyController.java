@@ -19,7 +19,7 @@ public class CompanyController {
     private CompanyService companyService;
 
     // Endpoint để tạo công ty mới
-    @PostMapping("/create")
+    @PostMapping("")
     public ResponseEntity<?> createCompany(@RequestBody Company company, @RequestParam String accountId) {
         try {
             Company newCompany = companyService.saveCompany(company, accountId);
@@ -30,7 +30,10 @@ public class CompanyController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
-    @PutMapping("/update")
+
+    
+    //update here
+    @PatchMapping("/update")
     public ResponseEntity<?> createCompany(@RequestBody CompanyDTO company) {
         try {
             Company savedCompany = companyService.updateCompany(company);
@@ -41,22 +44,22 @@ public class CompanyController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi cập công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
-
-    @GetMapping("/get-all")
-    public ResponseEntity<?> getAllCompany() {
-        try {
-            List<Company> listCompany = companyService.getAllCompanies();
-            List<CompanyDTO> res = new ArrayList<>();
-
-            // Loop through each company and convert to CompanyDTO
-            for (Company company : listCompany) {
-                res.add(CompanyDTO.CompanyMapper.toDTO(company));  // Add each DTO to the list
-            }
-            return ResponseHandler.resBuilder("Lấy thông tin tất cả công ty thành công.", HttpStatus.CREATED, res);
-        } catch (Exception ex) {
-            return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-        }
-    }
+ // fix there
+//    @GetMapping("")
+//    public ResponseEntity<?> getAllCompany() {
+//        try {
+//            List<Company> listCompany = companyService.getAllCompanies();
+//            List<CompanyDTO> res = new ArrayList<>();
+//
+//            // Loop through each company and convert to CompanyDTO
+//            for (Company company : listCompany) {
+//                res.add(CompanyDTO.CompanyMapper.toDTO(company));  // Add each DTO to the list
+//            }
+//            return ResponseHandler.resBuilder("Lấy thông tin tất cả công ty thành công.", HttpStatus.CREATED, res);
+//        } catch (Exception ex) {
+//            return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+//        }
+//    }
 
     // Endpoint để lấy công ty theo ID
     @GetMapping("/{accountId}")
@@ -64,9 +67,9 @@ public class CompanyController {
         try {
             Company company = companyService.getCompanyByAccountId(accountId);
             return ResponseHandler.resBuilder("Lấy thông tin công ty thành công.", HttpStatus.OK, company);
-        }catch(CompanyNotFoundEx ex){
-             return ResponseHandler.resBuilder("Thông tin công ty chưa được tạo", HttpStatus.NOT_FOUND, ex.getMessage());
-        }catch (Exception ex) {
+        } catch (CompanyNotFoundEx ex) {
+            return ResponseHandler.resBuilder("Thông tin công ty chưa được tạo", HttpStatus.NOT_FOUND, ex.getMessage());
+        } catch (Exception ex) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi lấy thông tin công ty.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
@@ -82,5 +85,4 @@ public class CompanyController {
 //        }
 //    }
     // Endpoint để lấy tất cả nghệ sĩ của công ty
-   
 }

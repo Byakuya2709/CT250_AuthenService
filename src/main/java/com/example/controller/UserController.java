@@ -29,7 +29,7 @@ public class UserController {
     private UserService userService;
 
     // Endpoint để tạo người dùng mới
-    @PostMapping("/create")
+    @PostMapping("")
     public ResponseEntity<?> createUser(@RequestBody User user, @RequestParam String accountId) {
         try {
             User newUser = userService.createUser(user, accountId);
