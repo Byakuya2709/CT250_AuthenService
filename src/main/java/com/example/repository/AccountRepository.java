@@ -23,10 +23,16 @@ public interface AccountRepository extends MongoRepository<Account, String> {
     Optional<Account> findByEmail(String email);
 
     boolean existsByEmail(String email); // Renamed to follow standard convention
+
     boolean existsById(String id);
+
     @Query(value = "{ 'type' : { $ne: 'ADMIN' } }", fields = "{ 'password': 0 }")
     Page<Account> findAll(Pageable pageable);
 
+    @Query(value = "{ 'type' : { $ne: 'ADMIN' } }", count = true)
+    Long countNonAdminAccounts();
 
+    @Query(value = "{ 'status' : 'INACTIVE' }", count = true)
+    Long countInactiveAccounts();
 
 }

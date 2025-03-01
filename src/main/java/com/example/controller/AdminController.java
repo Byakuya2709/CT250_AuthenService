@@ -1,6 +1,5 @@
 package com.example.controller;
 
-
 import com.example.exception.AccountBlockedException;
 import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
@@ -24,6 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admins")
 public class AdminController {
+
     @Autowired
     private AccountService accountService;
     @Autowired
@@ -47,6 +47,7 @@ public class AdminController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
+
     @PatchMapping("/unblocked/account/{accountId}")
     public ResponseEntity<?> UnblockUserAccount(@PathVariable("accountId") String accountId) {
         try {
@@ -80,6 +81,7 @@ public class AdminController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
+
     @GetMapping("/accounts/profiles/company")
     public ResponseEntity<?> getAllCompanyProfiles(
             @RequestParam(defaultValue = "0") int page,
@@ -109,4 +111,12 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/account/report")
+    public ResponseEntity<?> reportForAccount() {
+        try {
+            return ResponseHandler.resBuilder("Lấy báo cáo thành công", HttpStatus.OK, accountService.reportForAccount());
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
 }

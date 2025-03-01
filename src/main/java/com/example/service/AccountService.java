@@ -16,8 +16,10 @@ import com.example.repository.AccountRepository;
 import com.example.repository.CompanyRepository;
 import com.example.request.ResetPasswordRequest;
 import com.example.request.VerificationRequest;
+import java.util.HashMap;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.mail.AuthenticationFailedException;
 
@@ -62,7 +64,8 @@ public class AccountService {
     public Account saveAccount(Account account) {
         return accountRepository.save(account);
     }
-    public Page<Account> getAllAccountsWithPageable(Pageable pageable){
+
+    public Page<Account> getAllAccountsWithPageable(Pageable pageable) {
         return accountRepository.findAll(pageable);
     }
 
@@ -94,7 +97,6 @@ public class AccountService {
     }
 
 //    
-
     public boolean existsByEmail(String email) {
         return accountRepository.existsByEmail(email);
     }
@@ -239,7 +241,8 @@ public class AccountService {
         // Save and return the updated account
         return accountRepository.save(account);
     }
-    public void DeleteAccount(String accountId){
+
+    public void DeleteAccount(String accountId) {
 
         if (!accountRepository.existsById(accountId)) {
             throw new UserNotFoundException("Tài khoản không tồn tại");
@@ -260,6 +263,7 @@ public class AccountService {
         // Save and return the updated account
         return accountRepository.save(account);
     }
+
     public Account UnblockAccountById(String accountId) {
         // Fetch the account by email or throw an exception if not found
         Account account = accountRepository.findById(accountId)
@@ -290,4 +294,17 @@ public class AccountService {
             return false; // Trả về false nếu có lỗi xảy ra
         }
     }
+
+    public Map<String, Long> reportForAccount() {
+        Map<String, Long> res = new HashMap<>();
+
+        Long accountHasBlocked = accountRepository.countInactiveAccounts(); // Đếm tài khoản bị khóa
+        Long account = accountRepository.countNonAdminAccounts(); // Đếm tài khoản không phải ADMIN
+
+        res.put("countedUser", account);
+        res.put("countedBlock", accountHasBlocked);
+
+        return res;
+    }
+
 }
