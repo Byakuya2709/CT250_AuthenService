@@ -160,8 +160,13 @@ public class AuthenController {
 
 //             If OTP is valid, proceed with account creation
             String encodedPassword = accountService.encodePassword(req.getPassword());
-            Account account = new Account(req.getEmail().trim(), encodedPassword, Account.Type.valueOf(req.getRole()));
+
+            Account account = new Account();
+            account.setEmail(req.getEmail().trim());
+            account.setPassword(encodedPassword);
+            account.setType(Account.Type.valueOf(req.getRole()));
             account.setStatus(Account.AccountStatus.ACTIVE);
+
             Account createdAccount = accountService.saveAccount(account);
             return ResponseHandler.resBuilder("Tạo tài khoản thành công", HttpStatus.CREATED, createdAccount);
 
