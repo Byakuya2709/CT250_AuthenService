@@ -5,12 +5,13 @@
 package com.example.dto;
 
 import com.example.model.Company;
+import org.bson.types.ObjectId;
+
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author admin
  */
 public class CompanyDTO {
@@ -22,7 +23,37 @@ public class CompanyDTO {
     private String companyAddress;
     private String logoURL;
     private Date publishDate;
-    private String accountId;         // Only store the ID of the account
+    private String accountId;  // Chuyển thành String để tránh lỗi
+    private Date expiredDay;
+
+    public CompanyDTO(String id, String companyName, String companyMail, String companyPhone,
+                      String companyAddress, String logoURL, Date publishDate,
+                      String accountId, Date expiredDay) {
+        this.id = id;
+        this.companyName = companyName;
+        this.companyMail = companyMail;
+        this.companyPhone = companyPhone;
+        this.companyAddress = companyAddress;
+        this.logoURL = logoURL;
+        this.publishDate = publishDate;
+        this.accountId = accountId;
+        this.expiredDay = expiredDay;
+    }
+
+    public Date getExpiredDay() {
+        return expiredDay;
+    }
+
+    public void setExpiredDay(Date expiredDay) {
+        this.expiredDay = expiredDay;
+    }
+
+    public CompanyDTO() {
+    }
+
+    public boolean hasAccount() {
+        return accountId != null;
+    }
 
     // Getters and Setters
     public String getId() {
@@ -88,55 +119,56 @@ public class CompanyDTO {
     public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
-
-    public class CompanyMapper {
-
-        public static CompanyDTO toDTO(Company company) {
-            if (company == null) {
-                return null;
-            }
-
-            CompanyDTO companyDTO = new CompanyDTO();
-            companyDTO.setId(company.getId());
-            companyDTO.setCompanyName(company.getCompanyName());
-            companyDTO.setCompanyMail(company.getCompanyMail());
-            companyDTO.setCompanyPhone(company.getCompanyPhone());
-            companyDTO.setCompanyAddress(company.getCompanyAddress());
-            companyDTO.setLogoURL(company.getLogoURL());
-            companyDTO.setPublishDate(company.getPublishDate());
-
-
-            // Set the account ID
-            if (company.getAccount() != null) {
-                companyDTO.setAccountId(company.getAccount().getId());
-            }
-
-            return companyDTO;
-        }
-
-        public static Company toEntity(CompanyDTO companyDTO) {
-            if (companyDTO == null) {
-                return null;
-            }
-
-            Company company = new Company();
-            company.setId(companyDTO.getId());
-            company.setCompanyName(companyDTO.getCompanyName());
-            company.setCompanyMail(companyDTO.getCompanyMail());
-            company.setCompanyPhone(companyDTO.getCompanyPhone());
-            company.setCompanyAddress(companyDTO.getCompanyAddress());
-            company.setLogoURL(companyDTO.getLogoURL());
-            company.setPublishDate(companyDTO.getPublishDate());
-
-            // For simplicity, only set the IDs of the artists
-            // You would need to fetch the actual Artist objects from the database using their IDs
-            // Example:
-            // company.setArtists(artistRepository.findAllById(companyDTO.getArtistIds()));
-            // Set the account using the ID
-            // Example:
-            // company.setAccount(accountRepository.findById(companyDTO.getAccountId()).orElse(null));
-            return company;
-        }
-    }
-
 }
+
+//    public class CompanyMapper {
+//
+//        public static CompanyDTO toDTO(Company company) {
+//            if (company == null) {
+//                return null;
+//            }
+//
+//            CompanyDTO companyDTO = new CompanyDTO();
+//            companyDTO.setId(company.getId());
+//            companyDTO.setCompanyName(company.getCompanyName());
+//            companyDTO.setCompanyMail(company.getCompanyMail());
+//            companyDTO.setCompanyPhone(company.getCompanyPhone());
+//            companyDTO.setCompanyAddress(company.getCompanyAddress());
+//            companyDTO.setLogoURL(company.getLogoURL());
+//            companyDTO.setPublishDate(company.getPublishDate());
+//            companyDTO.setAccountId();
+//
+//            // Set the account ID
+/// /            if (company.getAccount() != null) {
+/// /                companyDTO.setAccountId(company.getAccount().getId());
+/// /            }
+//
+//            return companyDTO;
+//        }
+//
+//        public static Company toEntity(CompanyDTO companyDTO) {
+//            if (companyDTO == null) {
+//                return null;
+//            }
+//
+//            Company company = new Company();
+//            company.setId(companyDTO.getId());
+//            company.setCompanyName(companyDTO.getCompanyName());
+//            company.setCompanyMail(companyDTO.getCompanyMail());
+//            company.setCompanyPhone(companyDTO.getCompanyPhone());
+//            company.setCompanyAddress(companyDTO.getCompanyAddress());
+//            company.setLogoURL(companyDTO.getLogoURL());
+//            company.setPublishDate(companyDTO.getPublishDate());
+//
+//            // For simplicity, only set the IDs of the artists
+//            // You would need to fetch the actual Artist objects from the database using their IDs
+//            // Example:
+//            // company.setArtists(artistRepository.findAllById(companyDTO.getArtistIds()));
+//            // Set the account using the ID
+//            // Example:
+//            // company.setAccount(accountRepository.findById(companyDTO.getAccountId()).orElse(null));
+//            return company;
+//        }
+//    }
+
+

@@ -6,6 +6,7 @@ import com.example.model.Account;
 import com.example.model.Company;
 import com.example.repository.AccountRepository;
 import com.example.repository.CompanyRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,7 @@ public class CompanyService {
     }
 
     public Company getCompanyByAccountId(String accountId) {
-        return companyRepository.findByAccount_Id(accountId).orElseThrow(() -> new CompanyNotFoundEx("Company not found"));
+        return companyRepository.findByAccountId(new ObjectId(accountId)).orElseThrow(() -> new CompanyNotFoundEx("Company not found"));
     }
 
     // Lưu công ty
@@ -39,8 +40,7 @@ public class CompanyService {
         if (accountOptional.isEmpty()) {
             throw new IllegalArgumentException("Tài khoản không hợp lệ");
         }
-        Account account = accountOptional.get();
-        company.setAccount(account);
+        company.setAccountId(new ObjectId(accountId));
         return companyRepository.save(company);
     }
 
@@ -51,10 +51,9 @@ public class CompanyService {
     public Company updateCompany(CompanyDTO req) {
         Optional<Company> company = companyRepository.findById(req.getId());
         if (company.isEmpty()) {
-            throw new CompanyNotFoundEx("Công ty");
+            throw new CompanyNotFoundEx("Công ty không tồn tại!!!");
         }
         Company existingCompany = company.get();
-        System.out.println(existingCompany.toString());
         existingCompany.setCompanyName(req.getCompanyName());
         existingCompany.setCompanyMail(req.getCompanyMail());
         existingCompany.setCompanyPhone(req.getCompanyPhone());
@@ -69,7 +68,7 @@ public class CompanyService {
     }
 
     public Company findCompanyByAccountId(String accountId) {
-        return companyRepository.findByAccount_Id(accountId)
+        return companyRepository.findByAccountId(new ObjectId(accountId))
                 .orElseThrow(() -> new RuntimeException("No company found for account ID: " + accountId));
     }
 

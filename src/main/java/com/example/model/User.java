@@ -7,6 +7,10 @@ package com.example.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,10 +32,8 @@ public class User implements Serializable {
     private Date userBirth;
     private String imageURL;
 
-    @DBRef
-    @JsonIgnore
-    private Account account;
-
+    @JsonSerialize(using = ToStringSerializer.class) // Chuyển ObjectId thành String khi serialize JSON
+    private ObjectId accountId;
     public enum Gender {
         MALE,
         FEMALE
@@ -72,12 +74,12 @@ public class User implements Serializable {
         this.imageURL = imageURL;
     }
 
-    public Account getAccount() {
-        return account;
+    public ObjectId getAccountId() {
+        return accountId;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setAccountId(ObjectId accountId) {
+        this.accountId = accountId;
     }
 
     public String getId() {

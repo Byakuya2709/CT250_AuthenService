@@ -6,6 +6,8 @@ package com.example.repository;
 
 import com.example.model.Account;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -24,7 +26,6 @@ public interface AccountRepository extends MongoRepository<Account, String> {
 
     boolean existsByEmail(String email); // Renamed to follow standard convention
 
-    boolean existsById(String id);
 
     @Query(value = "{ 'type' : { $ne: 'ADMIN' } }", fields = "{ 'password': 0 }")
     Page<Account> findAll(Pageable pageable);
@@ -34,5 +35,7 @@ public interface AccountRepository extends MongoRepository<Account, String> {
 
     @Query(value = "{ 'status' : 'INACTIVE' }", count = true)
     Long countInactiveAccounts();
+
+    List<Account> findByExpiredDayBefore(Date date);
 
 }

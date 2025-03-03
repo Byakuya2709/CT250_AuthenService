@@ -5,13 +5,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "companys")
+@Document(collection = "companies")
 public class Company implements Serializable {
-    
+
     @Id
     private String id;
     private String companyName;
@@ -21,9 +25,8 @@ public class Company implements Serializable {
     private String logoURL;
     private Date publishDate;
 
-    @DBRef
-    @JsonIgnore
-    private Account account;
+    @JsonSerialize(using = ToStringSerializer.class) // Chuyển ObjectId thành String khi serialize JSON
+    private ObjectId accountId;
 
     // Getters và Setters
     public String getId() {
@@ -74,12 +77,12 @@ public class Company implements Serializable {
         this.publishDate = publishDate;
     }
 
-    public Account getAccount() {
-        return account;
+    public ObjectId getAccountId() {
+        return accountId;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setAccountId(ObjectId accountId) {
+        this.accountId = accountId;
     }
 
     public String getLogoURL() {
@@ -89,5 +92,7 @@ public class Company implements Serializable {
     public void setLogoURL(String logoURL) {
         this.logoURL = logoURL;
     }
-    
+
+    public Company() {
+    }
 }

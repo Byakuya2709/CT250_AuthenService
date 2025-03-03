@@ -4,10 +4,17 @@
  */
 package com.example.repository;
 
+import com.example.dto.CompanyDTO;
+import com.example.dto.UserDTO;
 import com.example.model.Company;
 import com.example.model.User;
 import java.util.Optional;
+
+import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,6 +24,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 
-    Optional<User> findByAccount_Id(String accountId);
+    Optional<User> findByAccountId(ObjectId accountId);
+
+    @Override
+    Page<User> findAll(Pageable pageable);
+
+
+
+
+    @Query(value = "{}", fields = "{ 'id': 1, 'userName': 1, 'userMail': 1, 'userPhone': 1, 'userGender': 1, 'userAddress': 1, 'userBirth': 1, 'imageURL': 1, 'account.id': 1 }")
+    Page<UserDTO> findAllUsersWithAccountInfo(Pageable pageable);
 
 }

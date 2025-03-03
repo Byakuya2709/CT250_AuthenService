@@ -5,6 +5,9 @@
 package com.example.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -31,6 +34,8 @@ public class Account implements Serializable {
     @Field("status")
     private AccountStatus status;
 
+    private Date expiredDay;
+
     
     public enum AccountStatus{
         ACTIVE,
@@ -38,7 +43,11 @@ public class Account implements Serializable {
     }
     // Default constructor
     public Account() {
-        this.status = AccountStatus.INACTIVE;
+        this.status = AccountStatus.ACTIVE;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, 1); // Cộng thêm 1 năm
+        this.expiredDay = calendar.getTime(); // Lấy ngày mới
     }
 
     // Parameterized constructor
@@ -95,6 +104,12 @@ public class Account implements Serializable {
     public void setStatus(AccountStatus status) {
         this.status = status;
     }
-    
-    
+
+    public Date getExpiredDay() {
+        return expiredDay;
+    }
+
+    public void setExpiredDay(Date expiredDay) {
+        this.expiredDay = expiredDay;
+    }
 }

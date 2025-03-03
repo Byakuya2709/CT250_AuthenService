@@ -33,11 +33,11 @@ public class CompanyController {
 
     
     //update here
-    @PatchMapping("/update")
+    @PatchMapping("")
     public ResponseEntity<?> createCompany(@RequestBody CompanyDTO company) {
         try {
             Company savedCompany = companyService.updateCompany(company);
-            return ResponseHandler.resBuilder("Cập nhật thông tin công ty thành công.", HttpStatus.OK, CompanyDTO.CompanyMapper.toDTO(savedCompany));
+            return ResponseHandler.resBuilder("Cập nhật thông tin công ty thành công.", HttpStatus.OK,savedCompany);
         } catch (IllegalArgumentException e) {
             return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.BAD_REQUEST, null);
         } catch (Exception ex) {

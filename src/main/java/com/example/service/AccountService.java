@@ -11,22 +11,26 @@ import com.example.exception.EmailAlreadyExistsException;
 import com.example.exception.OtpGenerationException;
 import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
+import com.example.model.Company;
 import com.example.model.Otp;
+import com.example.model.User;
 import com.example.repository.AccountRepository;
 import com.example.repository.CompanyRepository;
+import com.example.repository.UserRepository;
+import com.example.request.NewAccountRequest;
 import com.example.request.ResetPasswordRequest;
 import com.example.request.VerificationRequest;
-import java.util.HashMap;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 import javax.mail.AuthenticationFailedException;
 
+import org.bson.types.ObjectId;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,11 +50,26 @@ public class AccountService {
     private AccountRepository accountRepository;
     @Autowired
     private CompanyRepository companyRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private OtpService otpService;
 
     @Autowired
     private EmailService emailService;
+
+
+    @Scheduled(cron = "0 0 0 1 * ?") // Chạy vào 00:00 ngày 1 mỗi tháng
+    public void deactivateExpiredAccounts() {
+        List<Account> expiredAccounts = accountRepository.findByExpiredDayBefore(new Date());
+        for (Account account : expiredAccounts) {
+            account.setStatus(Account.AccountStatus.INACTIVE); // Chặn tài khoản
+            accountRepository.save(account);
+        }
+    }
+
 
     public String encodePassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt(12));
@@ -64,6 +83,40 @@ public class AccountService {
     public Account saveAccount(Account account) {
         return accountRepository.save(account);
     }
+
+
+    public Account createAccount(NewAccountRequest req) {
+        if (accountRepository.existsByEmail(req.getEmail())) {
+            throw new IllegalArgumentException("Email đã được sử dụng.");
+        }
+
+        // Kiểm tra mật khẩu có rỗng không
+        if (req.getPassword() == null || req.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mật khẩu không được để trống.");
+        }
+
+        // Encode mật khẩu
+        String encodedPassword = this.encodePassword(req.getPassword());
+
+        // Xử lý Role hợp lệ
+        Account.Type accountType;
+        try {
+            accountType = Account.Type.valueOf(req.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Vai trò không hợp lệ: " + req.getRole());
+        }
+
+        // Tạo tài khoản mới
+        Account newAcc = new Account();
+        newAcc.setEmail(req.getEmail());
+        newAcc.setType(accountType);
+        newAcc.setStatus(Account.AccountStatus.ACTIVE);
+        newAcc.setPassword(encodedPassword);
+
+        // Lưu vào database
+        return accountRepository.save(newAcc);
+    }
+
 
     public Page<Account> getAllAccountsWithPageable(Pageable pageable) {
         return accountRepository.findAll(pageable);
@@ -96,7 +149,7 @@ public class AccountService {
         }
     }
 
-//    
+    //
     public boolean existsByEmail(String email) {
         return accountRepository.existsByEmail(email);
     }
@@ -130,7 +183,7 @@ public class AccountService {
         String otp = OtpGenerate.generateOtp();
         try {
             otpService.saveOtp(email, otp, type, OTP_VALIDITY_MINUTES);
-//            emailService.sendVerificationEmail(email, otp);
+            emailService.sendVerificationEmail(email, otp);
         } catch (Exception e) {
             throw new OtpGenerationException("Có lỗi xảy ra khi lưu mã OTP hoặc gửi email.");
         }
@@ -155,7 +208,7 @@ public class AccountService {
         String otp = OtpGenerate.generateOtp();
         try {
             otpService.saveOtp(email, otp, type, OTP_VALIDITY_MINUTES);
-//            emailService.sendVerificationEmail(email, otp);
+            emailService.sendVerificationEmail(email, otp);
         } catch (Exception e) {
             throw new OtpGenerationException("Có lỗi xảy ra khi lưu mã OTP hoặc gửi email.");
         }
@@ -230,6 +283,7 @@ public class AccountService {
                 .orElseThrow(() -> new UserNotFoundException("Tài khoản không tồn tại: " + email));
     }
 
+
     public Account blockAccount(String email) {
         // Fetch the account by email or throw an exception if not found
         Account account = accountRepository.findByEmail(email)
@@ -244,13 +298,36 @@ public class AccountService {
 
     public void DeleteAccount(String accountId) {
 
-        if (!accountRepository.existsById(accountId)) {
-            throw new UserNotFoundException("Tài khoản không tồn tại");
+        Optional<Account> optionalAccount = accountRepository.findById(accountId);
+        if (optionalAccount.isEmpty()) {
+            throw new UserNotFoundException("User không tồn tại với accountId: " + accountId);
         }
-        companyRepository.deleteByAccountId(accountId);
 
+        Account account = optionalAccount.get();
+
+        if (account.getType().toString().equals("USER")) {
+            ObjectId objectId = new ObjectId(accountId);
+            Optional<User> optionalUser = userRepository.findByAccountId(objectId);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.setAccountId(null); // Bỏ liên kết với Account
+                userRepository.save(user); // Lưu lại thay đổi
+            }
+        } else {
+            ObjectId objectId = new ObjectId(accountId);
+            Optional<Company> optionalCompany = companyRepository.findByAccountId(objectId);
+
+            if (optionalCompany.isPresent()) {
+                Company company = optionalCompany.get();
+                company.setAccountId(null); // Bỏ liên kết với Account
+                companyRepository.save(company); // Lưu lại thay đổi
+            }
+        }
+
+        // Cuối cùng, xóa tài khoản
         accountRepository.deleteById(accountId);
     }
+
 
     public Account blockAccountById(String accountId) {
         // Fetch the account by email or throw an exception if not found
