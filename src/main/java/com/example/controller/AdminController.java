@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.CompanySummary;
 import com.example.exception.AccountBlockedException;
 import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.AuthenticationFailedException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -161,6 +163,16 @@ public class AdminController {
             return ResponseHandler.resBuilder("Lấy báo cáo thành công", HttpStatus.OK, accountService.reportForAccount());
         } catch (Exception ex) {
             return ResponseHandler.resBuilder("Có lỗi xảy ra trong hệ thống", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+
+    @GetMapping("/company/list")
+    public ResponseEntity<?> getListCompany() {
+        try {
+            List<CompanySummary> company = companyService.getAllCompaniesWithIdAndName();
+            return ResponseHandler.resBuilder("Lấy danh sách công ty thành công", HttpStatus.OK, company);
+        } catch (Exception e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
 }

@@ -4,15 +4,15 @@
  */
 package com.example.repository;
 
-import com.example.dto.CompanyDTO;
+import com.example.dto.CompanySummary;
 import com.example.model.Company;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,6 +28,8 @@ public interface CompanyRepository extends MongoRepository<Company, String> {
     @Override
     Page<Company> findAll(Pageable pageable);
 
+    @Query(value = "{}", fields = "{ 'id' : 1, 'companyName' : 1 }")
+    List<CompanySummary> findAllWithIdAndName();
 
 
 

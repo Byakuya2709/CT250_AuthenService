@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.dto.CompanyDTO;
+import com.example.dto.CompanySummary;
 import com.example.exception.CompanyNotFoundEx;
 import com.example.model.Account;
 import com.example.model.Company;
@@ -70,6 +71,10 @@ public class CompanyService {
     public Company findCompanyByAccountId(String accountId) {
         return companyRepository.findByAccountId(new ObjectId(accountId))
                 .orElseThrow(() -> new RuntimeException("No company found for account ID: " + accountId));
+    }
+
+    public List<CompanySummary> getAllCompaniesWithIdAndName() {
+        return companyRepository.findAllWithIdAndName();
     }
 
 }
