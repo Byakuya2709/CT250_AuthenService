@@ -48,6 +48,8 @@ public class UserController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo thông tin người dùng.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
+    
+    
 
     @GetMapping("/{accountId}")
     public ResponseEntity<?> getUserById(@PathVariable("accountId") String accountId) {
@@ -61,5 +63,18 @@ public class UserController {
             return ResponseHandler.resBuilder("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+    @GetMapping("/info/{userId}")
+    public ResponseEntity<?> getUserByUserId(@PathVariable("userId") String userId) {
+        try {
+            User res = userService.getUserSummaryById(userId);
+            return ResponseHandler.resBuilder("Lấy thông tin người dùng thành công.", HttpStatus.OK, res);
+        } catch (UserNotFoundException ex) {
+            return ResponseHandler.resBuilder("Thông tin công ty chưa được tạo", HttpStatus.NOT_FOUND, ex.getMessage());
+        } catch (Exception e) {
+            // Catch any other unexpected exceptions
+            return ResponseHandler.resBuilder("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
 
 }

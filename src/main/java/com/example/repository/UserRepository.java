@@ -29,8 +29,9 @@ public interface UserRepository extends MongoRepository<User, String> {
     @Override
     Page<User> findAll(Pageable pageable);
 
-
-
+   
+    @Query(value = "{ '_id': ?0 }", fields = "{ '_id': 1, 'userName': 1, 'imageURL': 1 }")
+    Optional<User> findUserSummaryById(String id);
 
     @Query(value = "{}", fields = "{ 'id': 1, 'userName': 1, 'userMail': 1, 'userPhone': 1, 'userGender': 1, 'userAddress': 1, 'userBirth': 1, 'imageURL': 1, 'account.id': 1 }")
     Page<UserDTO> findAllUsersWithAccountInfo(Pageable pageable);

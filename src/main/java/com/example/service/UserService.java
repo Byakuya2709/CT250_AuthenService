@@ -5,6 +5,7 @@
 package com.example.service;
 
 import com.example.dto.UserDTO;
+import com.example.exception.AccountNotFoundEx;
 import com.example.exception.CompanyNotFoundEx;
 import com.example.exception.UserNotFoundException;
 import com.example.model.Account;
@@ -45,13 +46,18 @@ public class UserService {
         return userRepository.save(user);  // Lưu người dùng vào cơ sở dữ liệu
     }
 
+    public User getUserSummaryById(String id) {
+        return userRepository.findUserSummaryById(id)
+                .orElseThrow(() -> new UserNotFoundException("Người dùng không tồn tại"));
+    }
+
     public User findUserById(String accountId) {
         Optional<User> user = userRepository.findByAccountId(new ObjectId(accountId));
         return user.orElseThrow(() -> new UserNotFoundException("No user found for account ID: " + accountId));
 
     }
 
-    public User update(UserDTO req){
+    public User update(UserDTO req) {
         Optional<User> user = userRepository.findById(req.getId());
         if (user.isEmpty()) {
             throw new UserNotFoundException("Người dùng không tồn tại!!!");
@@ -63,10 +69,8 @@ public class UserService {
         existingUser.setUserPhone(req.getUserPhone());
         existingUser.setImageURL(req.getImageURL());
 
-
         return userRepository.save(existingUser);
     }
-
 
     public Page<User> getAllUserWithPageable(Pageable pageable) {
         return userRepository.findAll(pageable);
