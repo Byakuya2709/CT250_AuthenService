@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: otp_db
+
+  auth-service:
+    build: .
+    container_name: auth-service
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: otp_db
+
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: minhkhanh10127@gmail.com
+      SPRING_MAIL_PASSWORD: vlvz bzks bgpc hbbm
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+      JWT_SECRET: your_secret_key
+      JWT_EXPIRATION: 1800000
+
+      CLOUDINARY_CLOUD_NAME: dtza0pk4w
+      CLOUDINARY_API_KEY: 425662915337973
+      CLOUDINARY_API_SECRET: 6ih9utefSdH0oNuoTcqThS_41Q8
+
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 50MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 200MB
+
+volumes:
+  mongo-data:
