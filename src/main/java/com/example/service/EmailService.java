@@ -4,8 +4,10 @@
  */
 package com.example.service;
 
+import com.example.dto.TicketResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.Base64;
 
 
 /**
@@ -30,6 +33,45 @@ public class EmailService {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
     }
+
+    public void sendTicketEmail(String to, TicketResponse ticket) {
+        try {
+            // Tạo nội dung email từ template
+            Context context = new Context();
+            context.setVariable("ticket", ticket);
+            String htmlContent = templateEngine.process("ticket-email-template", context);
+
+            // Tạo email
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject("Thông tin vé điện tử của bạn");
+            helper.setText(htmlContent, true);
+
+            // Kiểm tra xem qrCode có hợp lệ không
+            if (ticket.getQrCode() != null && !ticket.getQrCode().isEmpty()) {
+                // Xử lý chuỗi Base64 nếu có tiền tố `data:image/png;base64,`
+                String base64String = ticket.getQrCode();
+                base64String = base64String.replaceFirst("^data:image/\\w+;base64,", "").trim();
+
+                try {
+                    byte[] imageBytes = Base64.getDecoder().decode(base64String);
+                    helper.addAttachment("ticket_qr.png", new ByteArrayResource(imageBytes));
+                } catch (IllegalArgumentException e) {
+                    logger.error("Lỗi khi giải mã Base64 của QR Code", e);
+                }
+            }
+
+            // Gửi email
+            mailSender.send(message);
+            logger.info("Ticket email sent successfully to {}", to);
+        } catch (Exception e) {
+            logger.error("Failed to send ticket email to {}", to, e);
+            throw new RuntimeException("Failed to send ticket email, please try again later.", e);
+        }
+    }
+
+
 
     public void sendVerificationEmail(String to, String verificationCode) {
         try {

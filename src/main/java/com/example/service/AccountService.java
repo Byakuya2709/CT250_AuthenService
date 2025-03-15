@@ -4,7 +4,9 @@
  */
 package com.example.service;
 
+import com.example.controller.ResponseHandler;
 import com.example.dto.OtpGenerate;
+import com.example.dto.TicketResponse;
 import com.example.exception.AccountBlockedException;
 import com.example.exception.AccountNotFoundEx;
 import com.example.exception.EmailAlreadyExistsException;
@@ -30,9 +32,13 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * @author admin
@@ -59,6 +65,8 @@ public class AccountService {
 
     @Autowired
     private EmailService emailService;
+
+
 
 
     @Scheduled(cron = "0 0 0 1 * ?") // Chạy vào 00:00 ngày 1 mỗi tháng

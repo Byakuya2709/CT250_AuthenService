@@ -4,10 +4,12 @@
  */
 package com.example.controller;
 
+import com.example.dto.TicketResponse;
 import com.example.dto.UserDTO;
 import com.example.exception.CompanyNotFoundEx;
 import com.example.exception.UserNotFoundException;
 import com.example.model.User;
+import com.example.service.EmailService;
 import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,21 @@ public class UserController {
     private UserService userService;
 
     // Endpoint để tạo người dùng mới
+    @Autowired
+    private EmailService emailService;
+
+    @PostMapping("/tickets/email")
+    public ResponseEntity<?> sendMailTicket(@RequestBody TicketResponse ticket) {
+        try {
+            emailService.sendTicketEmail(ticket.getUserMail(),ticket);
+            return ResponseHandler.resBuilder("Cập nhật thông tin người dùng thành công.", HttpStatus.OK, null);
+        } catch (IllegalArgumentException e) {
+            return ResponseHandler.resBuilder(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        } catch (Exception ex) {
+            return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo thông tin người dùng.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+
     @PostMapping("")
     public ResponseEntity<?> createUser(@RequestBody User user, @RequestParam String accountId) {
         try {
@@ -48,8 +65,8 @@ public class UserController {
             return ResponseHandler.resBuilder("Có lỗi xảy ra khi tạo thông tin người dùng.", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
-    
-    
+
+
 
     @GetMapping("/{accountId}")
     public ResponseEntity<?> getUserById(@PathVariable("accountId") String accountId) {

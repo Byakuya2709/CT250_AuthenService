@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin vé của bạn</title>
+</head>
+<body>
+<h2>Chào bạn,</h2>
+<p>Cảm ơn bạn đã đặt vé. Dưới đây là thông tin vé của bạn:</p>
+
+<ul>
+    <li><strong>Mã vé:</strong> <span th:text="${ticket.ticketId}"></span></li>
+    <li><strong>Giá vé:</strong> <span th:text="${ticket.ticketPrice}"></span> VNĐ</li>
+    <li><strong>Trạng thái:</strong> <span th:text="${ticket.ticketStatus}"></span></li>
+    <li><strong>Thời gian đặt:</strong> <span th:text="${ticket.ticketBookingTime}"></span></li>
+    <li><strong>Ngày kích hoạt:</strong> <span th:text="${ticket.ticketDayActive}"></span></li>
+    <li><strong>Sự kiện:</strong> <span th:text="${ticket.eventTitle}"></span></li>
+    <li><strong>Ngày hết hạn:</strong> <span th:text="${ticket.ticketExpiredTime}"></span></li>
+
+</ul>
+<img th:src="'data:image/png;base64,' + ${ticket.qrCode}" alt="QR Code" width="200"/>
+<p>Chúc bạn có một trải nghiệm tuyệt vời!</p>
+</body>
+</html>

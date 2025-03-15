@@ -1,0 +1,191 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.example.dto;
+
+
+import java.util.Date;
+
+/**
+ *
+ * @author admin
+ */
+public class TicketResponse {
+
+    private Long ticketId;
+    private Double ticketPrice;
+    private String ticketStatus;
+
+    private String ticketValidity; // Trạng thái đã kích hoạt, hết hạn, còn hiệu lực
+
+    private String ticketPosition;  // Vị trí ghế vé
+
+    private String ticketDuration;
+
+    private String ticketUserId;
+
+    private int ticketDay;
+
+    private Date ticketDayActive; // nếu vé single day thì day active là ngày chọn mua, nếu all day thì day acitve là ngày bắt đầu sự kiện
+
+    private Date ticketBookingTime; // Thời gian đặt vé
+
+    private Long eventId;
+    private String companyId;
+    private String eventTitle;
+    private Date ticketExpiredTime;
+    private boolean isRating;
+    private String userMail;
+
+    private String qrCode;
+
+
+    public String getUserMail() {
+        return userMail;
+    }
+
+    public void setUserMail(String userMail) {
+        this.userMail = userMail;
+    }
+
+    public boolean isRating() {
+        return isRating;
+    }
+
+    public void setRating(boolean rating) {
+        isRating = rating;
+    }
+
+    public Date getTicketExpiredTime() {
+        return ticketExpiredTime;
+    }
+
+    public void setTicketExpiredTime(Date ticketExpiredTime) {
+        this.ticketExpiredTime = ticketExpiredTime;
+    }
+
+    public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
+    }
+
+    public String getEventTitle() {
+        return eventTitle;
+    }
+
+    public boolean isIsRating() {
+        return isRating;
+    }
+
+    public void setIsRating(boolean isRating) {
+        this.isRating = isRating;
+    }
+
+    public void setEventTitle(String eventTitle) {
+        this.eventTitle = eventTitle;
+    }
+
+    public Long getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(Long ticketId) {
+        this.ticketId = ticketId;
+    }
+
+    public Double getTicketPrice() {
+        return ticketPrice;
+    }
+
+    public void setTicketPrice(Double ticketPrice) {
+        this.ticketPrice = ticketPrice;
+    }
+
+    public String getTicketStatus() {
+        return ticketStatus;
+    }
+
+    public void setTicketStatus(String ticketStatus) {
+        this.ticketStatus = ticketStatus;
+    }
+
+    public String getTicketValidity() {
+        return ticketValidity;
+    }
+
+    public void setTicketValidity(String ticketValidity) {
+        this.ticketValidity = ticketValidity;
+    }
+
+    public String getTicketPosition() {
+        return ticketPosition;
+    }
+
+    public void setTicketPosition(String ticketPosition) {
+        this.ticketPosition = ticketPosition;
+    }
+
+    public String getTicketDuration() {
+        return ticketDuration;
+    }
+
+    public void setTicketDuration(String ticketDuration) {
+        this.ticketDuration = ticketDuration;
+    }
+
+    public String getTicketUserId() {
+        return ticketUserId;
+    }
+
+    public void setTicketUserId(String ticketUserId) {
+        this.ticketUserId = ticketUserId;
+    }
+
+    public int getTicketDay() {
+        return ticketDay;
+    }
+
+    public void setTicketDay(int ticketDay) {
+        this.ticketDay = ticketDay;
+    }
+
+    public Date getTicketDayActive() {
+        return ticketDayActive;
+    }
+
+    public void setTicketDayActive(Date ticketDayActive) {
+        this.ticketDayActive = ticketDayActive;
+    }
+
+    public Date getTicketBookingTime() {
+        return ticketBookingTime;
+    }
+
+    public void setTicketBookingTime(Date ticketBookingTime) {
+        this.ticketBookingTime = ticketBookingTime;
+    }
+
+    public Long getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
+
+    public TicketResponse() {
+    }
+
+}
